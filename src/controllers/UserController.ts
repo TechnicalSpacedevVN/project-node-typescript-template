@@ -1,11 +1,34 @@
 import { Request } from "express";
-import { Controller, Get } from "../core/decorator/router";
+import { Controller, Get, Post, Validate } from "../core/decorator/router";
 import { HttpResponse } from "../utils/HttpResponse";
 
-@Controller('/user')
+import {
+  RegisterInput,
+  UserService,
+  VerifyRegisterInput,
+} from "../services/user.services";
+import {
+  validatVerifyRegisterSchema,
+  validateRegisterSchema,
+} from "../validate-schema/user";
+
+@Controller("/user")
 export class UserController {
-    @Get('/search')
-    searchFriend(req: Request) {
-        return HttpResponse.success([])
-    }
+  @Post("/register")
+  @Validate(validateRegisterSchema)
+  async register(req: Request<any, RegisterInput>) {
+
+    let user = await UserService.register(req.body);
+    return HttpResponse.success(user);
+
+  }
+
+  @Get("/verify-register")
+  @Validate(validatVerifyRegisterSchema)
+  async verifyRegister(req: Request<any, any, any, VerifyRegisterInput>) {
+
+    await UserService.verifyRegister(req.query);
+    return HttpResponse.success(true);
+    
+  }
 }

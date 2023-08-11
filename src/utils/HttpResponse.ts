@@ -1,5 +1,5 @@
 export class HttpResponse {
-  static Paginate(data) {
+  static Paginate(data: any) {
     return {
       status: "success",
       code: 200,
@@ -8,7 +8,7 @@ export class HttpResponse {
     };
   }
 
-  static created(data) {
+  static created(data: any) {
     return {
       status: "success",
       code: 201,
@@ -17,7 +17,7 @@ export class HttpResponse {
     };
   }
 
-  static error(errors) {
+  static error(errors: any) {
     return {
       status: "error",
       code: 400,
@@ -27,7 +27,7 @@ export class HttpResponse {
     };
   }
 
-  static updated(data) {
+  static updated(data: any) {
     return {
       status: "success",
       code: 200,
@@ -36,7 +36,7 @@ export class HttpResponse {
     };
   }
 
-  static count(count) {
+  static count(count: number) {
     return {
       status: "success",
       code: 200,
@@ -47,7 +47,7 @@ export class HttpResponse {
     };
   }
 
-  static detail(data) {
+  static detail(data: any) {
     return {
       status: "success",
       code: 200,
@@ -56,7 +56,7 @@ export class HttpResponse {
     };
   }
 
-  static success(data) {
+  static success(data: any) {
     return {
       status: "success",
       code: 200,
