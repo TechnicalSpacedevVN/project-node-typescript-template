@@ -6,13 +6,16 @@ import { UserController } from "./controllers/UserController";
 import { FriendController } from "./controllers/FriendController";
 import { expressMiddleware } from "@apollo/server/express4";
 import { server } from "./graphql";
+import { AuthController } from "./controllers/AuthController";
+import { JWTMiddlware } from "./config/jwt.middleware";
 
 config();
 let port = process.env.PORT;
 
 @AppDecorator({
-  controllers: [UserController, FriendController],
+  controllers: [UserController, FriendController, AuthController],
   database: databaseConfig,
+  guard: JWTMiddlware
 })
 class App extends BaseApp {}
 

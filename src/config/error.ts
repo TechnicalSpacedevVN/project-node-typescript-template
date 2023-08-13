@@ -1,0 +1,1 @@
+export const VALIDATE_ERROR = "VALIDATE:ERROR";

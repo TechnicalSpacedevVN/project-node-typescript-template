@@ -1,32 +1,34 @@
-import "reflect-metadata";
 import { Express, NextFunction, Request, Response, Router } from "express";
-import { Schema } from "joi";
+import "reflect-metadata";
+import { GUARD_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
+import { BaseMiddleware } from "../BaseMiddleware";
+export interface ControllerOptions {
+  guard?: { new (): BaseMiddleware } & typeof BaseMiddleware;
+}
 
-const ROUTERS_KEY = "metadata:routers";
-
-const VALIDATE_KEY = "metadata:routers:validate";
-
-export const Controller = (prefix = '') => {
+export const Controller = (prefix = "") => {
   return (target: any): any => {
     return class extends target {
-      constructor(app: Express) {
+      constructor(app: Express, options: ControllerOptions) {
         super();
+
+        let _guard;
+        if (options.guard) {
+          let guard = new options.guard();
+          _guard = guard.use;
+        }
 
         let router: any = Router();
         let routers = Reflect.getMetadata(ROUTERS_KEY, target);
 
         for (let i in routers) {
           let r = routers[i];
-          let validate = Reflect.getMetadata(
-            `${VALIDATE_KEY}:${r.propertyKey}`,
-            target
-          );
 
           let handlers = [
             async (req: Request, res: Response, next: NextFunction) => {
               try {
                 let result = await r.handler(req, res, next);
-                if(typeof result === 'object') {
+                if (typeof result === "object") {
                   res.json(result);
                 }
               } catch (err) {
@@ -34,11 +36,20 @@ export const Controller = (prefix = '') => {
               }
             },
           ];
+          let validate = Reflect.getMetadata(
+            `${VALIDATE_KEY}:${r.propertyKey}`,
+            target
+          );
           if (validate) {
             handlers.unshift(validate);
           }
 
-          router[r.method](r.url || '', ...handlers);
+          let guard = Reflect.getMetadata(GUARD_KEY, target);
+          if (guard && _guard) {
+            handlers.unshift(_guard as any);
+          }
+
+          router[r.method](r.url || "", ...handlers);
         }
         app.use(prefix, router);
       }
@@ -73,34 +84,3 @@ export const Put = factoryMethod("put");
 export const Patch = factoryMethod("patch");
 export const Delete = factoryMethod("Delete");
 export const All = factoryMethod("all");
-
-export const Validate = (schema: Schema) => {
-  return (target: any, propertyKey: string, descriptor: any) => {
-    Reflect.defineMetadata(
-      `${VALIDATE_KEY}:${propertyKey}`,
-      async (req: Request, res: Response, next: NextFunction) => {
-        try {
-          await schema.validateAsync({ ...req.body, ...req.query });
-          next();
-        } catch (err) {
-          next(err);
-        }
-      },
-      target.constructor
-    );
-
-    // let orignalMethod = descriptor.value;
-    // descriptor.value = async function (
-    //   req: Request,
-    //   res: Response,
-    //   next: NextFunction
-    // ) {
-    //   try {
-    //     await schema.validateAsync({ ...req.body, ...req.query });
-    //     return orignalMethod.apply(this, [req, res, next]);
-    //   } catch (err) {
-    //     next(err);
-    //   }
-    // };
-  };
-};
