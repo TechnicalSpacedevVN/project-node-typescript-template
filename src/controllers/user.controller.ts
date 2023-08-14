@@ -6,7 +6,7 @@ import {
   RegisterInput,
   UserService,
   VerifyRegisterInput,
-} from "../services/user.services";
+} from "../services/user.service";
 import {
   validatVerifyRegisterSchema,
   validateRegisterSchema,
@@ -29,3 +29,4 @@ export class UserController {
     return HttpResponse.success(true);
   }
 }
+

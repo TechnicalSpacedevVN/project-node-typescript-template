@@ -6,21 +6,39 @@ import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
 import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
 import { BaseMiddleware } from "../BaseMiddleware";
+import { container } from "./DI-IoC";
+import { APP_TOKEN } from "./key";
 
 interface AppDecoratorOptions {
   controllers?: any[];
   database?: IDatabaseConfig;
-  guard?: typeof BaseMiddleware;
+  guard?: new () => BaseMiddleware;
+}
+
+export interface AppData {
+  app: Express;
+  guard?: BaseMiddleware;
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
   let { controllers } = options || {};
+
   return (target: any) => {
     return class extends target {
       app: Express;
       constructor() {
         super();
         this.app = express();
+
+        let appData: AppData = {
+          app: this.app,
+        };
+
+        if (options?.guard) {
+          appData.guard = new options.guard();
+        }
+
+        container.register(APP_TOKEN, appData);
 
         if (options?.database) {
           connectDatabase(options.database);
@@ -59,7 +77,7 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
 
         if (Array.isArray(controllers) && controllers.length > 0) {
           for (let i in controllers) {
-            new controllers[i](this.app, { guard: options?.guard });
+            new controllers[i]();
           }
         }
 

@@ -1,11 +1,19 @@
+function isClass(v: any) {
+  return typeof v === 'function' && /^\s*class\s+/.test(v.toString());
+}
+
 export class Container {
   private providers: { [key: string]: any } = {};
 
-  public register(token: any, value: new () => any) {
-    this.providers[token] = new value();
+  public register(token: any, value: (new () => any) | any) {
+    if(isClass(value)) {
+      this.providers[token] = new value();
+    }else {
+      this.providers[token] = value;
+    }
   }
 
-  public resolve<T = any>(token: new () => T): T {
+  public resolve<T = any>(token: (new () => T) | string): T {
     const matchedProvider = this.providers[token as any];
 
     if (matchedProvider) {
@@ -26,10 +34,11 @@ export function Injectable(token?: any): Function {
 
 export function Inject(token?: any): any {
   return function (target: any, methodName: string, index: number): any {
-    Object.defineProperty(target, methodName, {
+    let discriptor: PropertyDescriptor = {
       get: () => container.resolve(token),
       enumerable: true,
       configurable: true,
-    });
+    }
+    return discriptor
   };
 }

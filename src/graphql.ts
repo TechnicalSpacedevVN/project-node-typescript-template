@@ -1,11 +1,11 @@
 import { ApolloServer } from "@apollo/server";
 import { dateScalar } from "./utils/dateScalar";
-import { userSchema } from "./models/user.model";
-import { FriendService } from "./services/friend.services";
+import { UserType } from "./models/user.model";
+import { FriendService } from "./services/friend.service";
 import { container } from "./core/decorator/DI-IoC";
 const typeDefs = `#graphql
     scalar Date
-    ${userSchema}
+    ${UserType}
     type Query {
       friends(search: String): [User]
     }

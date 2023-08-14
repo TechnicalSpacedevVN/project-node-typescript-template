@@ -1,7 +1,9 @@
 import { Express, NextFunction, Request, Response, Router } from "express";
 import "reflect-metadata";
-import { GUARD_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
+import { APP_TOKEN, GUARD_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
 import { BaseMiddleware } from "../BaseMiddleware";
+import { container } from "./DI-IoC";
+import { AppData } from ".";
 export interface ControllerOptions {
   guard?: { new (): BaseMiddleware } & typeof BaseMiddleware;
 }
@@ -9,14 +11,10 @@ export interface ControllerOptions {
 export const Controller = (prefix = "") => {
   return (target: any): any => {
     return class extends target {
-      constructor(app: Express, options: ControllerOptions) {
+      constructor() {
         super();
 
-        let _guard;
-        if (options.guard) {
-          let guard = new options.guard();
-          _guard = guard.use;
-        }
+        let { app, guard } = container.resolve(APP_TOKEN) as AppData;
 
         let router: any = Router();
         let routers = Reflect.getMetadata(ROUTERS_KEY, target);
@@ -27,7 +25,7 @@ export const Controller = (prefix = "") => {
           let handlers = [
             async (req: Request, res: Response, next: NextFunction) => {
               try {
-                let result = await r.handler(req, res, next);
+                let result = await this[r.propertyKey](req, res, next);
                 if (typeof result === "object") {
                   res.json(result);
                 }
@@ -44,9 +42,9 @@ export const Controller = (prefix = "") => {
             handlers.unshift(validate);
           }
 
-          let guard = Reflect.getMetadata(GUARD_KEY, target);
-          if (guard && _guard) {
-            handlers.unshift(_guard as any);
+          let guardRouter = Reflect.getMetadata(GUARD_KEY, target);
+          if (guardRouter && guard?.use) {
+            handlers.unshift(guard.use as any);
           }
 
           router[r.method](r.url || "", ...handlers);
@@ -69,7 +67,6 @@ const factoryMethod = (method: string) => {
       routers.push({
         method,
         propertyKey,
-        handler: descriptor.value,
         url,
       });
 

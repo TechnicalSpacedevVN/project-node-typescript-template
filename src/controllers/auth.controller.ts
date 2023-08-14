@@ -4,7 +4,9 @@ import { validateLoginSchema } from "../validate-schema/auth";
 import { AuthService, LoginInput } from "../services/auth.service";
 import { HttpResponse } from "../utils/HttpResponse";
 import { Validate } from "../core/decorator";
+import { Injectable } from "../core/decorator/DI-IoC";
 
+@Injectable()
 @Controller("/auth")
 export class AuthController {
   @Post("/login")
