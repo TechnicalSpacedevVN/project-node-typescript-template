@@ -5,6 +5,7 @@ import { randomCode } from "../utils/randomCode";
 import fs from "fs";
 import path from "path";
 import { sendMail } from "../utils/sendMail";
+import { Injectable } from "../core/decorator/DI-IoC";
 
 export interface RegisterInput {
   email: string;
@@ -25,8 +26,9 @@ const forfotPasswordHtml = fs
   .readFileSync(path.resolve("./src/views/email-reset-password.html"))
   .toString();
 
+@Injectable()
 export class UserService {
-  public static async register(userData: RegisterInput) {
+  public async register(userData: RegisterInput) {
     let check = await User.findOne({ email: userData.email });
     if (check) {
       throw "Email này đã tồn tại";
@@ -52,7 +54,7 @@ export class UserService {
     return user;
   }
 
-  public static async verifyRegister(input: VerifyRegisterInput) {
+  public async verifyRegister(input: VerifyRegisterInput) {
     let { code, email } = input;
     let user = await User.findOne({
       email,

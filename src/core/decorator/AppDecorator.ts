@@ -5,14 +5,17 @@ import helmet from "helmet";
 import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
 import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
+import { BaseMiddleware } from "..";
 
 interface AppDecoratorOptions {
   controllers?: any[];
   database?: IDatabaseConfig;
+  guard?: new () => BaseMiddleware;
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
   let { controllers } = options || {};
+
   return (target: any) => {
     return class extends target {
       app: Express;
@@ -57,7 +60,9 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
 
         if (Array.isArray(controllers) && controllers.length > 0) {
           for (let i in controllers) {
-            new controllers[i](this.app);
+            new controllers[i](this.app, {
+              guard: options?.guard,
+            });
           }
         }
 

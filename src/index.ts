@@ -2,17 +2,20 @@ import { config } from "dotenv";
 import { databaseConfig } from "./config/database";
 import { errorMiddleware } from "./config/error.middleware";
 import { AppDecorator, BaseApp } from "./core/decorator/AppDecorator";
-import { UserController } from "./controllers/UserController";
-import { FriendController } from "./controllers/FriendController";
+import { UserController } from "./controllers/user.controller";
+import { FriendController } from "./controllers/friend.controller";
 import { expressMiddleware } from "@apollo/server/express4";
 import { server } from "./graphql";
+import { AuthController } from "./controllers/auth.controller";
+import { JwtMiddleware } from "./config/jwt.middlware";
 
 config();
 let port = process.env.PORT;
 
 @AppDecorator({
-  controllers: [UserController, FriendController],
+  controllers: [UserController, FriendController, AuthController],
   database: databaseConfig,
+  guard: JwtMiddleware
 })
 class App extends BaseApp {}
 
