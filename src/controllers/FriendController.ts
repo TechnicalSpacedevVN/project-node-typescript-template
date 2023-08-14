@@ -6,6 +6,8 @@ import Joi from "joi";
 import { Validate } from "../core/decorator";
 import { UseGuard } from "../core/decorator/guard";
 import { JWTMiddlware } from "../config/jwt.middleware";
+import { TYPES } from "../config/type";
+import { Inject } from "../core/decorator/DI-IoC";
 
 let searchValidate = Joi.object({
   search: Joi.string().required(),
@@ -14,11 +16,16 @@ let searchValidate = Joi.object({
 @Controller("/friend")
 @UseGuard()
 export class FriendController {
+  @Inject(FriendService) private friendService!: FriendService;
+  constructor() {
+    console.log(this.friendService);
+  }
+
   @Get("/search")
   @Validate(searchValidate)
   async searchFriend(req: Request<any, any, any, { search: string }>) {
     let { search } = req.query;
-    let user = await FriendService.searchFriend(search);
+    let user = await this.friendService.searchFriend(search);
     return HttpResponse.success(user);
   }
 }

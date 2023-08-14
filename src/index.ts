@@ -15,7 +15,7 @@ let port = process.env.PORT;
 @AppDecorator({
   controllers: [UserController, FriendController, AuthController],
   database: databaseConfig,
-  guard: JWTMiddlware
+  guard: JWTMiddlware,
 })
 class App extends BaseApp {}
 

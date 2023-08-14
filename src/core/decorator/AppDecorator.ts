@@ -7,7 +7,6 @@ import { errorMiddleware } from "../../config/error.middleware";
 import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
 import { BaseMiddleware } from "../BaseMiddleware";
 
-
 interface AppDecoratorOptions {
   controllers?: any[];
   database?: IDatabaseConfig;
