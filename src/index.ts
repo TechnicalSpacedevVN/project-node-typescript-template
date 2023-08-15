@@ -8,6 +8,9 @@ import { FriendController } from "./common/utils/friend.controller";
 import { GraphqlModule } from "./graphql";
 import { PostController } from "./post/post.controller";
 import { UserController } from "./user/user.controller";
+import { CommentController } from "./comment/comment.controller";
+import { FileController } from "./file/file.controller";
+import express from 'express'
 
 config();
 let port = process.env.PORT;
@@ -18,6 +21,8 @@ let port = process.env.PORT;
     FriendController,
     AuthController,
     PostController,
+    CommentController,
+    FileController
   ],
   database: databaseConfig,
   guard: JWTMiddlware,
@@ -28,6 +33,7 @@ class App extends BaseApp {}
 let app = new App();
 
 const main = async () => {
+  app.use('/media',express.static('./upload'))
   app.use(errorMiddleware);
   // app.use("/graphql", expressMiddleware(server));
   app.listen(port, () => {

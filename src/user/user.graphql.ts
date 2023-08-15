@@ -14,10 +14,10 @@ export class UserSchema {
   @Resolve("[User]")
   users() {}
 
-  @Resolve("[User]")
-  async friends(parent: any, args: any) {
-    return await this._friendService.searchFriend("Vương");
-  }
+  // @Resolve("[User]")
+  // async friends(parent: any, args: any) {
+  //   return await this._friendService.searchFriend("Vương");
+  // }
 
   @Resolve("User")
   user() {}

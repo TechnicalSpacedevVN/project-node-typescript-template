@@ -1,6 +1,6 @@
 import { Express, NextFunction, Request, Response, Router } from "express";
 import "reflect-metadata";
-import { APP_TOKEN, GUARD_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
+import { APP_TOKEN, GUARD_KEY, MIDDLEWARE_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
 import { BaseMiddleware } from "../BaseMiddleware";
 import { container } from "./DI-IoC";
 import { AppData } from ".";
@@ -42,11 +42,16 @@ export const Controller = (prefix = "") => {
             handlers.unshift(validate);
           }
 
+          let middlewares = Reflect.getMetadata(MIDDLEWARE_KEY, target, r.propertyKey);
+          if(Array.isArray(middlewares)) {
+            handlers.unshift(...middlewares)
+          }
+
+
           let guardRouter = Reflect.getMetadata(GUARD_KEY, target);
           if (guardRouter && guard?.use) {
             handlers.unshift(guard.use as any);
           }
-
           router[r.method](r.url || "", ...handlers);
         }
         app.use(prefix, router);
@@ -79,5 +84,5 @@ export const Get = factoryMethod("get");
 export const Post = factoryMethod("post");
 export const Put = factoryMethod("put");
 export const Patch = factoryMethod("patch");
-export const Delete = factoryMethod("Delete");
+export const Delete = factoryMethod("delete");
 export const All = factoryMethod("all");

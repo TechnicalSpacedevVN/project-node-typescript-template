@@ -1,11 +1,21 @@
 import _ from "lodash";
 import mongoose, { Schema } from "mongoose";
-import { APP_TOKEN, GRAPHQL_KEY, GRAPHQL_RESOLVE_KEY } from "./key";
+import {
+  APP_TOKEN,
+  GRAPHQL_KEY,
+  GRAPHQL_PARAM_KEY,
+  GRAPHQL_RESOLVE_KEY,
+} from "./key";
 import { ApolloServer } from "@apollo/server";
 import { BaseContext } from "@apollo/server";
 import { AppData } from ".";
 import { container } from "./DI-IoC";
 import { expressMiddleware } from "@apollo/server/express4";
+
+enum ParamType {
+  Param = "param",
+  Parent = "parent",
+}
 
 let map = new Map();
 map.set(String, "String");
@@ -48,6 +58,7 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
                   ${_queries}
                 }
             `;
+
         const resolvers = {
           Query: _resolvers,
         };
@@ -98,21 +109,38 @@ export const GraphQL = (model: mongoose.Model<any>, options?: any): any => {
 
       getQuery() {
         let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, this);
-        return _.map(
-          queries,
-          (value, key) => `
-            ${key}: ${value}
-        `
-        ).join("");
+        return _.map(queries, (value, key) => {
+          let params = Reflect.getMetadata(GRAPHQL_PARAM_KEY, this, key);
+          let _p = "";
+          if (Array.isArray(params)) {
+            _p = `(${params
+              .filter((e) => e.type === ParamType.Param)
+              .map((e) => `${e.name}:String`)
+              .join(",")})`;
+          }
+
+          return `
+                  ${key}${_p}: ${value}
+              `;
+        }).join("");
       }
 
       getResolver() {
         let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, this);
         let results: any = {};
-        _.forEach(
-          queries,
-          (value, key) => (results[key] = this[key].bind(this))
-        );
+        _.forEach(queries, (value, key) => {
+          let params: any[] = Reflect.getMetadata(GRAPHQL_PARAM_KEY, this, key);
+
+          results[key] = (parent: any, args: any) => {
+            let _p: any[] = [];
+
+            for (let pa of params) {
+              _p.push(args[pa.name]);
+            }
+
+            return this[key].apply(this, _p);
+          };
+        });
         return results;
       }
     };
@@ -125,4 +153,25 @@ export const Resolve =
     let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, target) || {};
     queries[propertyKey] = type;
     Reflect.defineMetadata(GRAPHQL_RESOLVE_KEY, queries, target);
+  };
+
+export const Parent = (target: any, propertyKey: string, index: number) => {
+  let params: any[] =
+    Reflect.getMetadata(GRAPHQL_PARAM_KEY, target, propertyKey) || [];
+
+  params.unshift();
+  console.log("Parent", propertyKey, index);
+};
+
+export const Param =
+  (name: string) => (target: any, propertyKey: string, index: number) => {
+    let params: any[] =
+      Reflect.getMetadata(GRAPHQL_PARAM_KEY, target, propertyKey) || [];
+
+    params.unshift({
+      type: ParamType.Param,
+      name,
+    });
+    Reflect.defineMetadata(GRAPHQL_PARAM_KEY, params, target, propertyKey);
+    console.log("Param", propertyKey, index);
   };
