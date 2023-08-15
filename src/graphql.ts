@@ -1,27 +1,6 @@
-import { ApolloServer } from "@apollo/server";
-import { dateScalar } from "./utils/dateScalar";
-import { UserType } from "./models/user.model";
-import { FriendService } from "./services/friend.service";
-import { container } from "./core/decorator/DI-IoC";
-const typeDefs = `#graphql
-    scalar Date
-    ${UserType}
-    type Query {
-      friends(search: String): [User]
-    }
-`;
-
-const resolvers = {
-  Date: dateScalar,
-  Query: {
-    friends: async (_: any, { search }: { search: string }) => {
-      let friendService = container.resolve(FriendService);
-      return await friendService.searchFriend(search);
-    },
-  },
-};
-
-export const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+import { GraphQLServer } from "./common/core/decorator";
+import { UserSchema } from "./user/user.graphql";
+import { PostSchema } from "./post/post.graphql";
+import { FriendSchema } from "./friend/friend.graphql";
+@GraphQLServer({ defs: [UserSchema, PostSchema, FriendSchema] })
+export class GraphqlModule {}

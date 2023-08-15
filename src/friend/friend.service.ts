@@ -1,5 +1,5 @@
-import { Inject, Injectable } from "../core/decorator/DI-IoC";
-import { User } from "../models/user.model";
+import { Inject, Injectable } from "../common/core/decorator/DI-IoC";
+import { User } from "../user/user.model";
 
 @Injectable()
 export class FriendService {

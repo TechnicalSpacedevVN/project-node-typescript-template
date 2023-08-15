@@ -13,6 +13,7 @@ interface AppDecoratorOptions {
   controllers?: any[];
   database?: IDatabaseConfig;
   guard?: new () => BaseMiddleware;
+  modules?: any[];
 }
 
 export interface AppData {
@@ -21,7 +22,7 @@ export interface AppData {
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
-  let { controllers } = options || {};
+  let { controllers, modules } = options || {};
 
   return (target: any) => {
     return class extends target {
@@ -96,7 +97,12 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
         // });
       }
 
-      listen(port: number | string | undefined, cb: () => void) {
+      async listen(port: number | string | undefined, cb: () => void) {
+        for (let i in options?.modules) {
+          let m = options?.modules[i as any];
+          let module = new m();
+          await module.start();
+        }
         this.app.listen(port, cb);
       }
 

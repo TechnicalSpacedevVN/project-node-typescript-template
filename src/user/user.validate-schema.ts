@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { validatePassowrd } from "../utils/validate";
+import { validatePassowrd } from "../common/utils/validate";
 
 export const validateRegisterSchema = Joi.object({
   name: Joi.string().required(),

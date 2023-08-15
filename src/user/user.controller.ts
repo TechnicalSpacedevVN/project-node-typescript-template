@@ -1,17 +1,17 @@
 import { Request } from "express";
-import { Controller, Get, Post } from "../core/decorator/router";
-import { HttpResponse } from "../utils/HttpResponse";
+import { Controller, Get, Patch, Post } from "../common/core/decorator/router";
+import { HttpResponse } from "../common/utils/HttpResponse";
 
 import {
   RegisterInput,
   UserService,
   VerifyRegisterInput,
-} from "../services/user.service";
+} from "./user.service";
 import {
   validatVerifyRegisterSchema,
   validateRegisterSchema,
-} from "../validate-schema/user";
-import { Validate } from "../core/decorator";
+} from "./user.validate-schema";
+import { Validate } from "../common/core/decorator";
 
 @Controller("/user")
 export class UserController {
@@ -28,5 +28,16 @@ export class UserController {
     await UserService.verifyRegister(req.query);
     return HttpResponse.success(true);
   }
-}
 
+  @Post("/reset-password")
+  resetPassword() {}
+
+  @Post("/change-password-by-code")
+  changePasswordByCode() {}
+
+  @Patch("/update")
+  updateInfo() {}
+
+  @Post("/change-password")
+  changePassword() {}
+}

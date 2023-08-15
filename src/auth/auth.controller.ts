@@ -1,12 +1,11 @@
 import { Request } from "express";
-import { Controller, Post } from "../core/decorator/router";
-import { validateLoginSchema } from "../validate-schema/auth";
-import { AuthService, LoginInput } from "../services/auth.service";
-import { HttpResponse } from "../utils/HttpResponse";
-import { Validate } from "../core/decorator";
-import { Injectable } from "../core/decorator/DI-IoC";
+import { Controller, Post } from "../common/core/decorator/router";
+import { validateLoginSchema } from "./auth.validate-schema";
+import { AuthService, LoginInput } from "./auth.service";
+import { HttpResponse } from "../common/utils/HttpResponse";
+import { Validate } from "../common/core/decorator";
+import { Injectable } from "../common/core/decorator/DI-IoC";
 
-@Injectable()
 @Controller("/auth")
 export class AuthController {
   @Post("/login")

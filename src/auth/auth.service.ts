@@ -1,8 +1,9 @@
 import crypto from "crypto";
-import { User } from "../models/user.model";
+import { User } from "../user/user.model";
 import jsonwebtoken from "jsonwebtoken";
-import { JWT } from "../config";
-import { Token } from "../models/token.model";
+import { JWT } from "../common/config";
+import { Token } from "./token.model";
+import { Injectable } from "../common/core/decorator/DI-IoC";
 
 export interface LoginInput {
   email: string;
@@ -13,6 +14,7 @@ export interface JwtData {
   id: string;
 }
 
+@Injectable()
 export class AuthService {
   public static async login(input: LoginInput) {
     let { email, password } = input;

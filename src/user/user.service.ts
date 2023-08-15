@@ -1,10 +1,11 @@
-import { User } from "../models/user.model";
+import { User } from "./user.model";
 import crypto from "crypto";
-import { randomCode } from "../utils/randomCode";
+import { randomCode } from "../common/utils/randomCode";
 
 import fs from "fs";
 import path from "path";
-import { sendMail } from "../utils/sendMail";
+import { sendMail } from "../common/utils/sendMail";
+import { Injectable } from "../common/core/decorator/DI-IoC";
 
 export interface RegisterInput {
   email: string;
@@ -18,13 +19,14 @@ export interface VerifyRegisterInput {
 }
 
 const emailRegisterHtml = fs
-  .readFileSync(path.resolve("./src/views/email-register.html"))
+  .readFileSync(path.resolve("./src/common/views/email-register.html"))
   .toString();
 
 const forfotPasswordHtml = fs
-  .readFileSync(path.resolve("./src/views/email-reset-password.html"))
+  .readFileSync(path.resolve("./src/common/views/email-reset-password.html"))
   .toString();
 
+@Injectable()
 export class UserService {
   public static async register(userData: RegisterInput) {
     let check = await User.findOne({ email: userData.email });
