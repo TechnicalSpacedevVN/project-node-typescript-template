@@ -8,6 +8,7 @@ import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
 import { BaseMiddleware } from "../BaseMiddleware";
 import { container } from "./DI-IoC";
 import { APP_TOKEN } from "./key";
+import rateLimit from "express-rate-limit";
 
 interface AppDecoratorOptions {
   controllers?: any[];
@@ -29,7 +30,18 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
       app: Express;
       constructor() {
         super();
+
+        // const apiLimiter = rateLimit({
+        //   windowMs: 30 * 1000, // 15 minutes
+        //   max: 1, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+        //   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+        //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+        //   // store: ... , // Use an external store for more precise rate limiting
+        // });
+
         this.app = express();
+
+        // this.app.use(apiLimiter);
 
         let appData: AppData = {
           app: this.app,
@@ -54,13 +66,6 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
         this.app.use(cors());
 
         this.app.use(helmet());
-
-        if (Array.isArray(controllers) && controllers.length > 0) {
-          for (let i in controllers) {
-            new controllers[i]();
-          }
-        }
-        this.app.use(errorMiddleware);
       }
 
       async listen(port: number | string | undefined, cb: () => void) {
@@ -69,6 +74,14 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
           let module = new m();
           await module.start();
         }
+
+        if (Array.isArray(controllers) && controllers.length > 0) {
+          for (let i in controllers) {
+            new controllers[i]();
+          }
+        }
+        this.app.use(errorMiddleware);
+
         this.app.listen(port, cb);
       }
 

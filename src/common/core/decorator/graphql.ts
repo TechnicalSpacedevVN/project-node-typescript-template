@@ -159,8 +159,10 @@ export const Parent = (target: any, propertyKey: string, index: number) => {
   let params: any[] =
     Reflect.getMetadata(GRAPHQL_PARAM_KEY, target, propertyKey) || [];
 
-  params.unshift();
-  console.log("Parent", propertyKey, index);
+  params.unshift({
+    type: ParamType.Param,
+  });
+  Reflect.defineMetadata(GRAPHQL_PARAM_KEY, params, target, propertyKey);
 };
 
 export const Param =
@@ -173,5 +175,4 @@ export const Param =
       name,
     });
     Reflect.defineMetadata(GRAPHQL_PARAM_KEY, params, target, propertyKey);
-    console.log("Param", propertyKey, index);
   };

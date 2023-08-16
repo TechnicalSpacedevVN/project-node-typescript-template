@@ -19,11 +19,11 @@ export interface VerifyRegisterInput {
 }
 
 const emailRegisterHtml = fs
-  .readFileSync(path.resolve("./src/common/views/email-register.html"))
+  .readFileSync(path.resolve("./src/user/views/email-register.html"))
   .toString();
 
 const forfotPasswordHtml = fs
-  .readFileSync(path.resolve("./src/common/views/email-reset-password.html"))
+  .readFileSync(path.resolve("./src/user/views/email-reset-password.html"))
   .toString();
 
 @Injectable()
