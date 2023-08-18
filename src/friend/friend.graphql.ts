@@ -11,4 +11,12 @@ export class FriendSchema {
   async friends(@Param("search") search: string) {
     return await this.friendService.searchFriend(search);
   }
+
+
+  @Resolve("[Friend]")
+  async myFriends(parent: any, args: any, context: any, info: any) {
+    console.log(context)
+    // return await this.friendService.searchFriend();
+  }
+
 }

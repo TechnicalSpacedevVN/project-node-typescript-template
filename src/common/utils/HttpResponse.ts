@@ -28,12 +28,15 @@ export class HttpResponse {
   }
 
   static updated(data: any) {
-    return {
-      status: "success",
-      code: 200,
-      message: "Dữ liệu đã được cập nhật thành công.",
-      data,
-    };
+    if (data.modifiedCount) {
+      return {
+        status: "success",
+        code: 200,
+        message: "Dữ liệu đã được cập nhật thành công.",
+      };
+    }
+
+    throw "Cập nhật dữ liệu thất bại"
   }
 
   static count(count: number) {

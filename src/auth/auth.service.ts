@@ -63,5 +63,6 @@ export class AuthService {
         refreshToken,
       };
     }
+    throw "Thao tác thất bại"
   }
 }

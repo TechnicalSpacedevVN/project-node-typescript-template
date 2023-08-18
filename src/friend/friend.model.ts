@@ -2,13 +2,19 @@ import { Schema, model } from "mongoose";
 
 const friendSchema = new Schema(
   {
-    senderId: {
+    sender: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      // as: 'sender'
     },
-    receiverId: {
+    receiver: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      // as: 'receiver'
+    },
+    confirm: {
+      type: Boolean,
+      default: false,
     },
   },
   {
@@ -16,4 +22,4 @@ const friendSchema = new Schema(
   }
 );
 
-export const Friend = model('Friend', friendSchema)
+export const Friend = model("Friend", friendSchema);

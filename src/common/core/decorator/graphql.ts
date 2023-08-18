@@ -11,6 +11,7 @@ let map = new Map();
 map.set(String, "String");
 map.set(Schema.Types.String, "String");
 map.set("ObjectId", "String");
+map.set(Schema.Types.ObjectId, "String");
 
 // map.set(Number, "Int");
 // map.set(Schema.Types.Number, "Int");
@@ -69,7 +70,7 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
         await this.server.start();
         app.use(options.url || "/graphql", expressMiddleware(this.server));
 
-        if(options.playground) {
+        if (options.playground) {
           app.get(options.playground, (req, res) => {
             res.write(`<!DOCTYPE html >
             <html lang="en" style="min-width: 100vw; min-height: 100vh; overflow: hidden;">
@@ -94,10 +95,9 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
                 });
                 </script>
             </body>
-            </html>`)
-          })
+            </html>`);
+          });
         }
-
       }
     };
   };
@@ -129,19 +129,20 @@ export const GraphQL = (model: Model<any>): any => {
         let results: any = {};
 
         for (let name in queries) {
-          results[name] = (parent: any, args: any) => {
-            let _p: any[] = [];
+          results[name] = (parent: any, args: any, context: any, info: any) => {
+            let _p: any[] = [parent, args, context, info];
             let params: any[] = Reflect.getMetadata(
               GRAPHQL_PARAM_KEY,
               this,
               name
             );
             if (Array.isArray(params)) {
-              for (let item of params) {
+              for (let i = params.length; i >= 0; i--) {
+                let item = params[i];
                 if (item.type === ParamType.Parent) {
-                  _p.push(parent);
+                  _p.unshift(parent);
                 } else {
-                  _p.push(args[item.name]);
+                  _p.unshift(args[item.name]);
                 }
               }
             }

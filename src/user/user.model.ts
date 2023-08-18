@@ -5,12 +5,20 @@ const UserSchema = new Schema(
     name: {
       type: String,
       required: true,
-      index: 'text'
+      index: "text",
     },
     email: {
       type: Schema.Types.String,
       unique: true,
       required: true,
+    },
+    avatar: {
+      type: String,
+      default: null,
+    },
+    birthday: {
+      type: Date,
+      default: null,
     },
     password: {
       type: String,
@@ -26,6 +34,13 @@ const UserSchema = new Schema(
       default: null,
       required: false,
     },
+    changePasswordHistories: [
+      {
+        password: String,
+        changeAt: Date,
+      },
+    ],
+    sendMailAt: Date,
   },
   {
     timestamps: true,
@@ -38,7 +53,5 @@ const UserSchema = new Schema(
 //         name: String
 //     }
 // `;
-
-
 
 export const User = mongoose.model("User", UserSchema);
