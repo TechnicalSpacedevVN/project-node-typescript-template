@@ -1,24 +1,25 @@
 import { Request } from "express";
-import { Controller, Get, Post, Validate } from "../core/decorator/router";
-import { HttpResponse } from "../utils/HttpResponse";
+import { Controller, Get, Patch, Post, Validate } from "@core/decorator/router";
+import { HttpResponse } from "@/common/utils/HttpResponse";
 
 import {
   RegisterInput,
   UserService,
   VerifyRegisterInput,
-} from "../services/user.service";
+} from "./user.service";
 import {
   validatVerifyRegisterSchema,
   validateRegisterSchema,
-} from "../validate-schema/user";
-import { JwtMiddleware } from "../config/jwt.middlware";
-import { Middlewares } from "../core/decorator";
-import { Inject } from "../core/decorator/DI-IoC";
+  validateUpdateUserSchema,
+} from "./user.validate-schema";
+import { JwtMiddleware, jwtMiddleware } from "@/common/config/jwt.middlware";
+import { Middlewares, UseGuard } from "@core/decorator";
+import { Inject } from "@core/decorator/DI-IoC";
 
 @Controller("/user")
+@UseGuard()
 export class UserController {
-  
-  @Inject(UserService) private readonly userService!: UserService
+  @Inject(UserService) private readonly userService!: UserService;
 
   @Post("/register")
   @Validate(validateRegisterSchema)
@@ -34,7 +35,10 @@ export class UserController {
     return HttpResponse.success(true);
   }
 
-  @Post("/update-info")
-  @Middlewares([JwtMiddleware])
-  postUpdateInfo() {}
+  @Patch("/update-info")
+  @Validate(validateUpdateUserSchema)
+  @Middlewares(jwtMiddleware)
+  postUpdateInfo() {
+    return { user: true };
+  }
 }

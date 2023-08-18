@@ -1,9 +1,9 @@
 import crypto from "crypto";
-import { User } from "../models/user.model";
-import { JWT } from "../config";
+import { User } from "@/user/user.model";
+import { JWT } from "@/common/config";
 import jsonwebtoken from "jsonwebtoken";
-import { Token } from "../models/token.model";
-import { Injectable } from "../core/decorator/DI-IoC";
+import { Token } from "./token.model";
+import { Injectable } from "@core/decorator/DI-IoC";
 
 
 

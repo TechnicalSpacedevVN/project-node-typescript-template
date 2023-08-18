@@ -5,6 +5,10 @@
     "lib": ["es6"],
     "allowJs": true,
     "outDir": "build",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@core/*": ["./src/common/core/*"]
+    },
     "rootDir": "src",
     "strict": true,
     "noImplicitAny": true,

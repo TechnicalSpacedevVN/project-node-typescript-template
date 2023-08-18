@@ -2,7 +2,7 @@ import "reflect-metadata";
 import { Express, NextFunction, Request, Response, Router } from "express";
 import { Schema } from "joi";
 import { BaseMiddleware } from "..";
-import { GUARD_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
+import { GUARD_KEY, MIDDLEWARE_KEY, ROUTERS_KEY, VALIDATE_KEY } from "./key";
 
 export interface ControllerOptions {
   guard?: new () => BaseMiddleware;
@@ -45,6 +45,15 @@ export const Controller = (prefix = "") => {
           ];
           if (validate) {
             handlers.unshift(validate);
+          }
+
+          let middlewares = Reflect.getMetadata(
+            MIDDLEWARE_KEY,
+            this,
+            r.propertyKey
+          );
+          if (Array.isArray(middlewares)) {
+            handlers.unshift(...middlewares);
           }
 
           let guard = Reflect.getMetadata(GUARD_KEY, target);

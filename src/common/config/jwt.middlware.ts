@@ -4,7 +4,7 @@ import { ParsedQs } from "qs";
 import { BaseMiddleware } from "../core";
 import jsonwebtoken from "jsonwebtoken";
 import { JWT } from ".";
-import { JWTPayload } from "../services/auth.service";
+import { JWTPayload } from "@/auth/auth.service";
 
 export class JwtMiddleware extends BaseMiddleware {
   use(
@@ -29,3 +29,25 @@ export class JwtMiddleware extends BaseMiddleware {
     next("Token invalid");
   }
 }
+
+export const jwtMiddleware = (
+  req: any,
+  res: Response<any, Record<string, any>>,
+  next: NextFunction
+) => {
+  let { authorization } = req.headers;
+  if (!authorization) {
+    return next("Api yêu cầu quyền truy cập");
+  }
+
+  let check = jsonwebtoken.verify(
+    authorization.replace("Bearer ", ""),
+    JWT.SECRET_KEY
+  ) as JWTPayload;
+  if (check) {
+    req.user = check.id;
+    return next();
+  }
+
+  next("Token invalid");
+};

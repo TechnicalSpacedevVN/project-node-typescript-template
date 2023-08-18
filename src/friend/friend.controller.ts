@@ -1,11 +1,11 @@
 import { Request } from "express";
-import { Controller, Get, Validate } from "../core/decorator/router";
-import { HttpResponse } from "../utils/HttpResponse";
-import { FriendService } from "../services/friend.service";
+import { Controller, Get, Validate } from "@core/decorator/router";
+import { HttpResponse } from "../common/utils/HttpResponse";
+import { FriendService } from "./friend.service";
 import Joi from "joi";
-import { UseGuard } from "../core/decorator";
-import { Inject } from "../core/decorator/DI-IoC";
-import { AuthService } from "../services/auth.service";
+import { UseGuard } from "@core/decorator";
+import { Inject } from "@core/decorator/DI-IoC";
+import { AuthService } from "@/auth/auth.service";
 
 let searchValidate = Joi.object({
   search: Joi.string().required(),

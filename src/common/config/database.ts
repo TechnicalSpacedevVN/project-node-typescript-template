@@ -1,4 +1,4 @@
-import { IDatabaseConfig } from "../core/mongoose-config";
+import { IDatabaseConfig } from "@core/mongoose-config";
 import { config } from "dotenv";
 config();
 

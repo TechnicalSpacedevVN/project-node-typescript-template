@@ -1,12 +1,12 @@
 import { Request } from "express";
-import { Controller, Post, Validate } from "../core/decorator/router";
+import { Controller, Post, Validate } from "@core/decorator/router";
 import {
   validateLoginSchema,
   validateRefreshTokenSchema,
-} from "../validate-schema/auth";
-import { AuthService, LoginInput } from "../services/auth.service";
-import { HttpResponse } from "../utils/HttpResponse";
-import { Inject } from "../core/decorator/DI-IoC";
+} from "./auth.validate-schema";
+import { AuthService, LoginInput } from "./auth.service";
+import { HttpResponse } from "../common/utils/HttpResponse";
+import { Inject } from "@core/decorator/DI-IoC";
 
 @Controller("/auth")
 export class AuthController {

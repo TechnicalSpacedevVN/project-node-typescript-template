@@ -5,9 +5,10 @@ const UserSchema = new Schema(
     name: {
       type: String,
       required: true,
+      index: 'text'
     },
     email: {
-      type: String,
+      type: Schema.Types.String,
       unique: true,
       required: true,
     },
@@ -23,7 +24,7 @@ const UserSchema = new Schema(
     code: {
       type: String,
       default: null,
-      required: false
+      required: false,
     },
   },
   {
@@ -31,11 +32,13 @@ const UserSchema = new Schema(
   }
 );
 
-export const userSchema = `
-    type User {
-        id: String
-        name: String
-    }
-`;
+// export const userSchema = `
+//     type User {
+//         id: String
+//         name: String
+//     }
+// `;
+
+
 
 export const User = mongoose.model("User", UserSchema);

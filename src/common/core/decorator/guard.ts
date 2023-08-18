@@ -7,6 +7,3 @@ export const UseGuard = () => {
   };
 };
 
-export const Middlewares = (middlewares: (new () => BaseMiddleware)[]): any => {
-  return (target: any) => {};
-};

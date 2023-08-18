@@ -6,15 +6,22 @@ import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
 import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
 import { BaseMiddleware } from "..";
+import { container } from "./DI-IoC";
+import { APP_KEY } from "./key";
 
 interface AppDecoratorOptions {
   controllers?: any[];
   database?: IDatabaseConfig;
   guard?: new () => BaseMiddleware;
+  modules?: any[];
+}
+
+export interface AppData {
+  app: Express
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
-  let { controllers } = options || {};
+  let { controllers, modules } = options || {};
 
   return (target: any) => {
     return class extends target {
@@ -76,12 +83,21 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
 
         this.app.use(errorMiddleware);
 
+        container.register(APP_KEY, { app: this.app });
         // this.app.all("*", (req, res) => {
         //   res.status(404).json({ error: "Not Found" });
         // });
       }
 
-      listen(port: number | string | undefined, cb: () => void) {
+      async listen(port: number | string | undefined, cb: () => void) {
+        if (Array.isArray(modules)) {
+          for (let i in modules) {
+            let m = modules[i];
+            let module = new m();
+            await module.start();
+          }
+        }
+
         this.app.listen(port, cb);
       }
 

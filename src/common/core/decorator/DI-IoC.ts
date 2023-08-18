@@ -2,7 +2,11 @@ export class Container {
   private providers: { [k: string]: any } = {};
 
   public register(token: any, value: any) {
-    this.providers[token] = new value();
+    try {
+      this.providers[token] = new value();
+    }catch(err) {
+      this.providers[token] = value;
+    }
   }
 
   public resolve<T = any>(token: (new () => T) | string): T {

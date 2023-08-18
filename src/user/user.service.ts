@@ -1,11 +1,11 @@
-import { User } from "../models/user.model";
+import { User } from "./user.model";
 import crypto from "crypto";
-import { randomCode } from "../utils/randomCode";
+import { randomCode } from "@/common/utils/randomCode";
 
 import fs from "fs";
 import path from "path";
-import { sendMail } from "../utils/sendMail";
-import { Injectable } from "../core/decorator/DI-IoC";
+import { sendMail } from "@/common/utils/sendMail";
+import { Injectable } from "@core/decorator/DI-IoC";
 
 export interface RegisterInput {
   email: string;
@@ -19,11 +19,11 @@ export interface VerifyRegisterInput {
 }
 
 const emailRegisterHtml = fs
-  .readFileSync(path.resolve("./src/views/email-register.html"))
+  .readFileSync(path.resolve("./src/user/views/email-register.html"))
   .toString();
 
 const forfotPasswordHtml = fs
-  .readFileSync(path.resolve("./src/views/email-reset-password.html"))
+  .readFileSync(path.resolve("./src/user/views/email-reset-password.html"))
   .toString();
 
 @Injectable()
