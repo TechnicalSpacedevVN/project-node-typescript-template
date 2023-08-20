@@ -8,6 +8,10 @@ export const dateScalar = new GraphQLScalarType({
       return new Date(value).getTime();
       //   return value.getTime(); // Convert outgoing Date to integer for JSON
     }
+
+    if(value instanceof Date) {
+      return value.getTime()
+    }
     throw Error("GraphQL Date Scalar serializer expected a `Date` object");
   },
   parseValue(value) {

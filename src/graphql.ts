@@ -1,12 +1,13 @@
-import { ApolloServer } from "@apollo/server";
 import { dateScalar } from "./common/utils/dateScalar";
 // import { userSchema } from "./user/user.model";
-import { FriendService } from "./friend/friend.service";
-import { container } from "@core/decorator/DI-IoC";
+import jsonwebtoken from "jsonwebtoken";
 import { GraphQLServer } from "./common/core/decorator";
-import { UserSchema } from "./user/user.graphql";
 import { FriendSchema } from "./friend/friend.graphql";
 import { PostSchema } from "./post/post.graphql";
+import { UserSchema } from "./user/user.graphql";
+import { JWT } from "./common/config";
+import { JWTPayload } from "./auth/auth.service";
+import { GraphQLError } from "graphql";
 // const typeDefs = `#graphql
 //     scalar Date
 //     ${userSchema}
@@ -37,8 +38,46 @@ import { PostSchema } from "./post/post.graphql";
 
 @GraphQLServer({
   defs: [UserSchema, FriendSchema, PostSchema],
-  scalars: [dateScalar],
+  scalars: [
+    {
+      name: "Date",
+      type: dateScalar,
+    },
+  ],
   url: "/graphql",
   playground: "/graphql-playground",
+  getContext: async ({ req, res }) => {
+    return { bearerToken: req.headers.authorization?.split("Bearer ")[1] };
+  },
+  guard: (context, next) => {
+    let { bearerToken } = context;
+    if (!bearerToken) {
+      throw new GraphQLError("Api yêu cầu quyền truy cập", {
+        extensions: {
+          code: "Forbiden",
+        },
+      });
+    }
+
+    try {
+      let check = jsonwebtoken.verify(
+        bearerToken,
+        JWT.SECRET_KEY
+      ) as JWTPayload;
+
+      if (check) {
+        context.user = check.id;
+        return next();
+      }
+
+      throw "Có lỗi xẩy ra";
+    } catch (err) {
+      throw new GraphQLError("Token không chính xác, vui lòng kiểm tra lại", {
+        extensions: {
+          code: "Forbiden",
+        },
+      });
+    }
+  },
 })
 export class GraphQLApp {}

@@ -1,10 +1,21 @@
 import { Model, Schema } from "mongoose";
 import { container } from "./DI-IoC";
-import { APP_KEY, GRAPHQL_PARAM_KEY, GRAPHQL_RESOLVE_KEY } from "./key";
+import {
+  APP_KEY,
+  GRAPHQL_AUTH_KEY,
+  GRAPHQL_GUARD,
+  GRAPHQL_PARAM_KEY,
+  GRAPHQL_RELATION_KEY,
+  GRAPHQL_RESOLVE_KEY,
+} from "./key";
 import { AppData } from ".";
 import { ApolloServer } from "@apollo/server";
 import { BaseContext } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
+import { Request, Response } from "express";
+import { ContextFunction } from "@apollo/server";
+import { ExpressMiddlewareOptions } from "@apollo/server/express4";
+import { ExpressContextFunctionArgument } from "@apollo/server/express4";
 
 let map = new Map();
 
@@ -27,17 +38,25 @@ export interface GraphQLServerOptions {
   scalars?: any[];
   url?: string;
   playground?: string;
+  getContext?: ContextFunction<[ExpressContextFunctionArgument], any>;
+  guard?: (context: any, next: () => void) => void;
 }
 
 export const GraphQLServer = (options: GraphQLServerOptions): any => {
+  if (options.guard) {
+    container.register(GRAPHQL_GUARD, options.guard);
+  }
   return (target: any) => {
     return class extends target {
       server: ApolloServer<BaseContext>;
       constructor() {
         super();
 
+        let relation: any = {}
+
         let _types = "#graphql";
         let _resolvers = {};
+        
         let _queries = "";
         for (let schema of options.defs) {
           let s = new schema();
@@ -47,10 +66,20 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
             ...s.getResolver(),
           };
           _queries += s.getQuery();
+          let name = s.getName()
+          if(name) {
+            relation[name] = s.getRelation()
+          }
         }
-        // 'user(name: String): User'
 
-        // console.log(_queries);
+        if(options.scalars) {
+          for(let item of options.scalars) {
+            _types += `\n scalar ${item.name}` as any
+            (relation as any)[item.name] = item.type
+          }
+        }
+
+        
         this.server = new ApolloServer({
           typeDefs: `
             ${_types}
@@ -60,6 +89,7 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
             }
           `,
           resolvers: {
+            ...relation,
             Query: _resolvers,
           },
         });
@@ -71,10 +101,7 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
         app.use(
           options.url || "/graphql",
           expressMiddleware<any>(this.server, {
-            context: async ({ req }) => {
-              throw "asdfsadf";
-              return { token: req.headers.authorization };
-            },
+            context: options.getContext as any,
           })
         );
 
@@ -111,33 +138,61 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
   };
 };
 
-export const GraphQL = (model: Model<any>): any => {
+export const GraphQL = (name?: string, type?: string): any => {
   return (target: any) => {
     return class extends target {
+      getName() {
+        return name
+      }
       getType() {
-        let tree = (model.schema as any).tree;
-
-        let fields = "";
-
-        for (let i in tree) {
-          if (map.has(tree[i]?.type || tree[i])) {
-            fields += `\n${i}: ${map.get(tree[i]?.type || tree[i])}`;
-          }
-        }
-
-        return `
-          type ${model.modelName} {
-            ${fields}
-          }
+        if(name && type) {
+          return `
+          type ${name} { ${type} }
         `;
+        }
+        // let tree = (model.schema as any).tree;
+
+        // let fields = "";
+
+        // for (let i in tree) {
+        //   if (map.has(tree[i]?.type || tree[i])) {
+        //     fields += `\n${i}: ${map.get(tree[i]?.type || tree[i])}`;
+        //   }
+        // }
+
+        // return `
+        //   type ${model.modelName} {
+        //     ${fields}
+        //   }
+        // `;
       }
 
       getResolver() {
         let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, this);
         let results: any = {};
-
+        let guardFn = container.resolve(GRAPHQL_GUARD);
         for (let name in queries) {
-          results[name] = this[name].bind(this);
+          let auth = Reflect.getMetadata(GRAPHQL_AUTH_KEY, this, name);
+          if (auth && guardFn) {
+            results[name] = (
+              parent: any,
+              arg: any,
+              context: any,
+              ...args: any[]
+            ) => {
+              let check = false;
+              guardFn(context, () => {
+                check = true;
+              });
+              if (check) {
+                return this[name].call(this, parent, arg, context, ...args);
+              }
+
+              throw "Bạn không có quyền truy cập api này";
+            };
+          } else {
+            results[name] = this[name].bind(this);
+          }
           // results[name] = (parent: any, args: any, context: any, info: any) => {
           //   let _p: any[] = [parent, args, context, info];
           //   let params: any[] = Reflect.getMetadata(
@@ -158,6 +213,37 @@ export const GraphQL = (model: Model<any>): any => {
 
           //   return this[name].apply(this, _p);
           // };
+        }
+
+        return results;
+      }
+
+      getRelation() {
+        let queries = Reflect.getMetadata(GRAPHQL_RELATION_KEY, this);
+        let results: any = {};
+        let guardFn = container.resolve(GRAPHQL_GUARD);
+        for (let name in queries) {
+          let auth = Reflect.getMetadata(GRAPHQL_AUTH_KEY, this, name);
+          if (auth && guardFn) {
+            results[queries[name]] = (
+              parent: any,
+              arg: any,
+              context: any,
+              ...args: any[]
+            ) => {
+              let check = false;
+              guardFn(context, () => {
+                check = true;
+              });
+              if (check) {
+                return this[name].call(this, parent, arg, context, ...args);
+              }
+
+              throw "Bạn không có quyền truy cập api này";
+            };
+          } else {
+            results[queries[name]] = this[name].bind(this);
+          }
         }
 
         return results;
@@ -196,6 +282,14 @@ export const Resolve =
     Reflect.defineMetadata(GRAPHQL_RESOLVE_KEY, queries, target);
   };
 
+  export const Field =
+  (def: string) =>
+  (target: any, propertyKey: string, descriptor: any): any => {
+    let queries = Reflect.getMetadata(GRAPHQL_RELATION_KEY, target) || {};
+    queries[propertyKey] = def;
+    Reflect.defineMetadata(GRAPHQL_RELATION_KEY, queries, target);
+  };
+
 // queries = {
 //   'userFriends': '[User]',
 //   'user': 'User'
@@ -228,4 +322,6 @@ export const Param =
     Reflect.defineMetadata(GRAPHQL_PARAM_KEY, params, target, propertyKey);
   };
 
-export const Auth = () => {};
+export const Auth = (target: any, method: string) => {
+  Reflect.defineMetadata(GRAPHQL_AUTH_KEY, true, target, method);
+};

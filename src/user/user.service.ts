@@ -177,13 +177,13 @@ export class UserService {
     throw "Thao tác lỗi";
   }
 
-  public async searchUser(exclude: string, name: string) {
+  public async searchUser(exclude: string, name = '') {
     return await User.find({
       $text: {
         $search: name,
       },
       _id: {
-        $not: exclude,
+        $ne: exclude,
       },
     });
   }

@@ -3,7 +3,9 @@ import { Post } from "./post.model";
 import { Inject } from "@/common/core/decorator/DI-IoC";
 import { PostService } from "./post.service";
 
-@GraphQL(Post)
+@GraphQL('Post', `
+  content: String
+`)
 export class PostSchema {
   @Inject(PostService) postService!: PostService;
 

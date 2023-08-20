@@ -3,6 +3,7 @@ import { connectDatabase } from "@/common/core/mongoose-config";
 import { faker } from "@faker-js/faker";
 import { User } from "./user.model";
 import { hashPassword } from "./utils";
+import _ from "lodash";
 
 (async () => {
   await connectDatabase(databaseConfig);
@@ -12,7 +13,7 @@ import { hashPassword } from "./utils";
   count = parseInt(count) || 10;
 
   await User.insertMany(
-    faker.helpers.multiple(
+    _.uniqBy(faker.helpers.multiple(
       () => {
         return {
           avatar: faker.internet.avatar(),
@@ -24,7 +25,7 @@ import { hashPassword } from "./utils";
         };
       },
       { count: parseInt(count) || 10 }
-    )
+    ), 'email')
   );
   console.log(`Seed success ${count} user`);
   process.exit();

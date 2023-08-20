@@ -6,26 +6,25 @@ import { Friend } from "./friend.model";
 @Injectable()
 export class FriendService {
   public async searchFriend(userId: string, search?: string) {
-    if (search) {
-      let friends = await Friend.find({
-        $or: [
-          {
-            sender: userId,
-          },
-          {
-            receiver: userId,
-          },
-        ],
-      }).select("_id receiver sender");
-      
-      let userFriendIds = friends.map((e) => {
-        if (e.sender?.toString() === userId) {
-          return e.receiver;
-        } else {
-          return e.sender;
-        }
-      });
+    let friends = await Friend.find({
+      $or: [
+        {
+          sender: userId,
+        },
+        {
+          receiver: userId,
+        },
+      ],
+    }).select("_id receiver sender");
 
+    let userFriendIds = friends.map((e) => {
+      if (e.sender?.toString() === userId) {
+        return e.receiver;
+      } else {
+        return e.sender;
+      }
+    });
+    if (search) {
       return await User.find({
         $text: {
           $search: search,
@@ -34,52 +33,12 @@ export class FriendService {
           $in: userFriendIds,
         },
       });
-
-      // let users = await User.aggregate(
-      //   [
-      //     {
-      //       $match: {
-      //         $text: {
-      //           $search: search,
-      //         },
-      //       },
-      //     },
-      //   ]
-      //   // {
-      //   //   // $text: {
-      //   //   //   $search: search,
-      //   //   // },
-      //   //   _id: {
-      //   //     $in: userIds,
-      //   //   },
-      //   // }
-      // );
-
-      // console.log(users);
-      // return users;
-      // return User.find({ $text: { $search: search } });
-
-      // return Friend.find({
-      //   $or: [
-      //     {
-      //       sender: userId,
-      //     },
-      //     {
-      //       receiver: userId,
-      //     },
-      //   ],
-      // })
-      //   .populate({
-      //     path: "sender",
-      //     select: { _id: 1, name: 1, avatar: 1 },
-      //   })
-      //   .populate({
-      //     path: "receiver",
-      //     select: { _id: 1, name: 1, avatar: 1 },
-      //   })
-      //   .where();
     }
-    return User.find();
+    return User.find({
+      _id: {
+        $in: userFriendIds,
+      },
+    });
   }
 
   public async addFriend({ receiverId, senderId }: AddFriendInput) {
