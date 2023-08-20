@@ -38,7 +38,7 @@ import { PostSchema } from "./post/post.graphql";
 @GraphQLServer({
   defs: [UserSchema, FriendSchema, PostSchema],
   scalars: [dateScalar],
-  url: '/graph',
-  // playground: '/graphql-playground'
+  url: "/graphql",
+  playground: "/graphql-playground",
 })
 export class GraphQLApp {}

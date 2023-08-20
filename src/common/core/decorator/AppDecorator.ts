@@ -4,7 +4,7 @@ import express, { Express } from "express";
 import helmet from "helmet";
 import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
-import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
+import { IDatabaseConfig, connectDatabase } from "../mongoose-config";
 import { BaseMiddleware } from "..";
 import { container } from "./DI-IoC";
 import { APP_KEY } from "./key";
@@ -17,7 +17,7 @@ interface AppDecoratorOptions {
 }
 
 export interface AppData {
-  app: Express
+  app: Express;
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
@@ -56,7 +56,16 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
         this.app.use(express.json());
         this.app.use(cors());
 
-        this.app.use(helmet());
+        this.app.use(
+          helmet({
+            contentSecurityPolicy: {
+              directives: {
+                "script-src": ["self"],
+              },
+              reportOnly: true,
+            },
+          })
+        );
 
         // this.app.use(assignId);
 

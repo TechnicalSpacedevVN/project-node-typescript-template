@@ -3,9 +3,12 @@ import { User } from "./user.model";
 
 @GraphQL(User)
 export class UserSchema {
-  @Resolve("User")
+  @Resolve("user: User")
   user() {}
 
-  @Resolve("[User]")
-  userFriends() {}
+  @Resolve("userFriends: [User]")
+  userFriends(parent: any, arg: any, context: any, info: any) {
+    console.log(info);
+    return [];
+  }
 }

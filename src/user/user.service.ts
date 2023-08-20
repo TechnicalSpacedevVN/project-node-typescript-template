@@ -94,26 +94,27 @@ export class UserService {
 
     if (user) {
       if (Array.isArray(user.changePasswordHistories)) {
-        let histories = user.changePasswordHistories.filter(e => moment().unix() - moment(e.changeAt).add(6, 'month').unix() < 0)
-        if(histories.find(e => e.password === newPassword)) {
-          throw "Vui lòng thay đổi password khác những password cũ trong khoảng 6 tháng gần nhât"
+        let histories = user.changePasswordHistories.filter(
+          (e) => moment().unix() - moment(e.changeAt).add(6, "month").unix() < 0
+        );
+        if (histories.find((e) => e.password === newPassword)) {
+          throw "Vui lòng thay đổi password khác những password cũ trong khoảng 6 tháng gần nhât";
         }
       }
       user.password = newPassword;
 
-
       await user.updateOne({
         $set: {
-          password: newPassword
+          password: newPassword,
         },
         $push: {
           changePasswordHistories: [
             {
               password: newPassword,
-              changeAt: new Date()
-            }
-          ]
-        }
+              changeAt: new Date(),
+            },
+          ],
+        },
       });
 
       return "Cập nhật tài khoản thành công";
@@ -174,5 +175,16 @@ export class UserService {
     }
 
     throw "Thao tác lỗi";
+  }
+
+  public async searchUser(exclude: string, name: string) {
+    return await User.find({
+      $text: {
+        $search: name,
+      },
+      _id: {
+        $not: exclude,
+      },
+    });
   }
 }

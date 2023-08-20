@@ -7,12 +7,12 @@ import { PostService } from "./post.service";
 export class PostSchema {
   @Inject(PostService) postService!: PostService;
 
-  @Resolve("[Post]")
+  @Resolve("posts: [Post]")
   async posts(@Param("content") content: string) {
     return await this.postService.searchPost(content);
   }
 
-  @Resolve("Post")
+  @Resolve("post: Post")
   async post(@Param("content") content: string) {
     return await this.postService.searchOnePost(content);
   }

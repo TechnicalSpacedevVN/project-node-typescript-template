@@ -68,11 +68,19 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
       async start() {
         const { app }: AppData = container.resolve(APP_KEY);
         await this.server.start();
-        app.use(options.url || "/graphql", expressMiddleware(this.server));
+        app.use(
+          options.url || "/graphql",
+          expressMiddleware<any>(this.server, {
+            context: async ({ req }) => {
+              throw "asdfsadf";
+              return { token: req.headers.authorization };
+            },
+          })
+        );
 
         if (options.playground) {
           app.get(options.playground, (req, res) => {
-            res.write(`<!DOCTYPE html >
+            res.send(`<!DOCTYPE html >
             <html lang="en" style="min-width: 100vw; min-height: 100vh; overflow: hidden;">
             <head>
                 <meta charset="UTF-8">
@@ -129,26 +137,27 @@ export const GraphQL = (model: Model<any>): any => {
         let results: any = {};
 
         for (let name in queries) {
-          results[name] = (parent: any, args: any, context: any, info: any) => {
-            let _p: any[] = [parent, args, context, info];
-            let params: any[] = Reflect.getMetadata(
-              GRAPHQL_PARAM_KEY,
-              this,
-              name
-            );
-            if (Array.isArray(params)) {
-              for (let i = params.length; i >= 0; i--) {
-                let item = params[i];
-                if (item.type === ParamType.Parent) {
-                  _p.unshift(parent);
-                } else {
-                  _p.unshift(args[item.name]);
-                }
-              }
-            }
+          results[name] = this[name].bind(this);
+          // results[name] = (parent: any, args: any, context: any, info: any) => {
+          //   let _p: any[] = [parent, args, context, info];
+          //   let params: any[] = Reflect.getMetadata(
+          //     GRAPHQL_PARAM_KEY,
+          //     this,
+          //     name
+          //   );
+          //   if (Array.isArray(params)) {
+          //     for (let i = params.length; i >= 0; i--) {
+          //       let item = params[i];
+          //       if (item.type === ParamType.Parent) {
+          //         _p.unshift(parent);
+          //       } else {
+          //         _p.unshift(args[item.name]);
+          //       }
+          //     }
+          //   }
 
-            return this[name].apply(this, _p);
-          };
+          //   return this[name].apply(this, _p);
+          // };
         }
 
         return results;
@@ -158,20 +167,20 @@ export const GraphQL = (model: Model<any>): any => {
         let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, this);
         let str = "";
         for (let name in queries) {
-          let params: any[] = Reflect.getMetadata(
-            GRAPHQL_PARAM_KEY,
-            this,
-            name
-          );
-          let _pStr = "";
-          if (params) {
-            _pStr = `(${params
-              .filter((e) => e.type === ParamType.Param)
-              .map((e) => `${e.name}: String`)
-              .join(",")})`;
-          }
+          // let params: any[] = Reflect.getMetadata(
+          //   GRAPHQL_PARAM_KEY,
+          //   this,
+          //   name
+          // );
+          // let _pStr = "";
+          // if (params) {
+          //   _pStr = `(${params
+          //     .filter((e) => e.type === ParamType.Param)
+          //     .map((e) => `${e.name}: String`)
+          //     .join(",")})`;
+          // }
 
-          str += `\n${name}${_pStr}: ${queries[name]}`;
+          str += `\n${queries[name]}`;
         }
         return str;
       }
@@ -180,10 +189,10 @@ export const GraphQL = (model: Model<any>): any => {
 };
 
 export const Resolve =
-  (type: string) =>
+  (def: string) =>
   (target: any, propertyKey: string, descriptor: any): any => {
     let queries = Reflect.getMetadata(GRAPHQL_RESOLVE_KEY, target) || {};
-    queries[propertyKey] = type;
+    queries[propertyKey] = def;
     Reflect.defineMetadata(GRAPHQL_RESOLVE_KEY, queries, target);
   };
 
@@ -219,13 +228,4 @@ export const Param =
     Reflect.defineMetadata(GRAPHQL_PARAM_KEY, params, target, propertyKey);
   };
 
-// function a(...args: any[]) {
-//   console.log("a", this.abc, ...args);
-// }
-
-// let a1 = a.bind({ abc: "a1" });
-// // a1(1,2,3,4,56)
-
-// a.apply({ abc: "a1" }, [1, 2, 3, 4, 56]);
-
-// (content: String!)
+export const Auth = () => {};

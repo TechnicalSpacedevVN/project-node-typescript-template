@@ -8,6 +8,7 @@ import {
   validateForgotPasswordSchema,
   validateRegisterSchema,
   validateResetPasswordByCodeSchema,
+  validateSearchUser,
   validateUpdateUserSchema,
 } from "./user.validate-schema";
 import { JwtMiddleware, jwtMiddleware } from "@/common/config/jwt.middlware";
@@ -73,6 +74,15 @@ export class UserController {
   async changePasswordByCode(req: Request<ChangePasswordByCodeInput>) {
     return HttpResponse.success(
       await this.userService.changePasswordByCode(req.body)
+    );
+  }
+
+  @Get("/search")
+  @Middlewares(jwtMiddleware)
+  @Validate(validateSearchUser)
+  searchUser(req: AuthRequest<any, { q: string }>) {
+    return HttpResponse.success(
+      this.userService.searchUser(req.user, req.query.q)
     );
   }
 }
