@@ -22,6 +22,7 @@ import {
   UpdateUserInfoInput,
   VerifyRegisterInput,
 } from "./type";
+import { User } from "./user.model";
 
 @Controller("/user")
 export class UserController {
@@ -74,5 +75,11 @@ export class UserController {
     return HttpResponse.success(
       await this.userService.changePasswordByCode(req.body)
     );
+  }
+
+  @Get()
+  @Middlewares(jwtMiddleware)
+  async getUser(req: AuthRequest) {
+    return HttpResponse.success(await User.findOne({ _id: req.user }));
   }
 }

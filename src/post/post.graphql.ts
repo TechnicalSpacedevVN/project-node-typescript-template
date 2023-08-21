@@ -3,16 +3,22 @@ import { Post } from "./post.model";
 import { Inject } from "@/common/core/decorator/DI-IoC";
 import { PostService } from "./post.service";
 
-@GraphQL(Post)
+@GraphQL(
+  `Post`,
+  `
+  _id: String!
+  content: String!
+`
+)
 export class PostSchema {
   @Inject(PostService) postService!: PostService;
 
-  @Resolve("[Post]")
+  @Resolve("posts(content: String): [Post]")
   async posts(@Param("content") content: string) {
     return await this.postService.searchPost(content);
   }
 
-  @Resolve("Post")
+  @Resolve("post: Post")
   async post(@Param("content") content: string) {
     return await this.postService.searchOnePost(content);
   }

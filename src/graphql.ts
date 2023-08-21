@@ -7,10 +7,18 @@ import { GraphQLServer } from "./common/core/decorator";
 import { UserSchema } from "./user/user.graphql";
 import { FriendSchema } from "./friend/friend.graphql";
 import { PostSchema } from "./post/post.graphql";
+import jsonwebtoken from "jsonwebtoken";
+import { GraphQLError } from "graphql";
+import { JWT } from "./common/config";
+import { JWTPayload } from "./auth/auth.service";
 // const typeDefs = `#graphql
 //     scalar Date
-//     ${userSchema}
+//     type Post {
+//       author: User
+//     }
+
 //     type Query {
+
 //       friends(search: String): [User]
 //     }
 // `;
@@ -18,6 +26,9 @@ import { PostSchema } from "./post/post.graphql";
 // const resolvers = {
 //   Date: dateScalar,
 //   Query: {
+//     Post: {
+//       author: () => {}
+//     },
 //     friends: async (_: any, { search }: { search: string }) => {
 //       let friendService = container.resolve(FriendService);
 //       return await friendService.searchFriend(search);
@@ -38,7 +49,27 @@ import { PostSchema } from "./post/post.graphql";
 @GraphQLServer({
   defs: [UserSchema, FriendSchema, PostSchema],
   scalars: [dateScalar],
-  url: '/graph',
-  // playground: '/graphql-playground'
+  url: "/graphql",
+  playground: "/graphql-devtool",
+  guard: (context: any, next: any) => {
+    try {
+      let { bearToken } = context;
+      if (!bearToken) {
+        throw new GraphQLError("Api này bắt buộc có auth");
+      }
+
+      let check = jsonwebtoken.verify(bearToken, JWT.SECRET_KEY) as JWTPayload;
+      if (check) {
+        context.user = check.id;
+        return next();
+      }
+    } catch (err: any) {
+      throw new GraphQLError(err.message, {
+        extensions: {
+          code: err.code,
+        },
+      });
+    }
+  },
 })
 export class GraphQLApp {}

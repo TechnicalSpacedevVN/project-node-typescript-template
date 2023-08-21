@@ -4,7 +4,7 @@ export class Container {
   public register(token: any, value: any) {
     try {
       this.providers[token] = new value();
-    }catch(err) {
+    } catch (err) {
       this.providers[token] = value;
     }
   }
@@ -37,13 +37,8 @@ export function Inject(token?: any): any {
   };
 }
 
-
-
-
 class A {
-  constructor(private readonly a: number) {
-  }
-
+  constructor(private readonly a: number) {}
 
   // private a: number
   // constructor(a: number) {
@@ -51,5 +46,4 @@ class A {
   // }
 }
 
-
-let a = new A(234)
+let a = new A(234);
