@@ -22,6 +22,7 @@ export const validateUpdateUserSchema = Joi.object({
   name: Joi.string(),
   birthday: Joi.date(),
   avatar: Joi.string().uri(),
+  allowFollow: Joi.bool(),
 });
 
 export const validateChangePasswordSchema = Joi.object({

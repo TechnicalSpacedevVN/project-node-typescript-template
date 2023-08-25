@@ -36,17 +36,45 @@ export class PostSchema {
       return await Post.find({ author: args.user }).sort({ _id: -1 }).limit(10);
     }
 
-    const blockUser =
-      (await User.findOne({ _id: context.user }).select("block"))?.block || [];
+    let user = await User.findOne({ _id: context.user }).select("block follow");
+    const blockUser = user?.block || [];
 
-    return await Post.find({
-      author: {
-        $nin: blockUser,
-      },
-    })
-      .sort({ _id: -1 })
-      .limit(10);
-    // return await this.postService.searchPost(content);
+    const follow = user?.follow || [];
+
+    // return await Post.find({
+    //   author: {
+    //     $nin: blockUser,
+    //   },
+    // })
+    //   .sort({ _id: -1 })
+    //   .limit(10);
+    try {
+      let res = await Post.aggregate([
+        {
+          $addFields: {
+            isFollow: {
+              $in: ["$author", follow],
+            },
+          },
+        },
+        {
+          $match: {
+            author: {
+              $nin: blockUser,
+            },
+          },
+        },
+        {
+          $sort: {
+            isFollow: -1,
+            createdAt: -1,
+          },
+        },
+      ]).limit(10);
+      return res;
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   @Resolve("post: Post")

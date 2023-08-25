@@ -12,7 +12,8 @@ export interface VerifyRegisterInput {
 export interface UpdateUserInfoInput {
   name?: string;
   avatar?: string;
-  birthday: Date;
+  birthday?: Date;
+  allowFollow?: boolean;
 }
 
 export interface ChangePasswordInput {

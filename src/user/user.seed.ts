@@ -34,10 +34,7 @@ import _ from "lodash";
       // e.nickname = faker.internet.displayName();
       // e.hideFriendList = false;
       // e.cover = faker.image.url({ height: 700, width: 1900 });
-      e.location = {
-        type: "Point",
-        coordinates: [faker.location.longitude(), faker.location.latitude()],
-      } as any;
+      e.allowFollow = true;
       await e.save();
       return;
     })

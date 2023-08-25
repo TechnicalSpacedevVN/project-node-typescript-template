@@ -55,6 +55,10 @@ const UserSchema = new Schema(
         ref: "User",
       },
     ],
+    allowFollow: {
+      type: Boolean,
+      default: true,
+    },
     follow: [
       {
         type: Schema.Types.ObjectId,

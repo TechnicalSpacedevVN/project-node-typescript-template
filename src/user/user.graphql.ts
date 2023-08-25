@@ -18,6 +18,7 @@ import mongoose, { Schema } from "mongoose";
   nickname: String
   distance: Float
   location: Location
+  allowFollow: Boolean
   block: [User]
   follow: [User]
 `
