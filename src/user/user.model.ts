@@ -1,5 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
+const LocationSchema = new Schema({
+  type: { type: String, default: "Point" },
+  coordinates: {
+    type: [Number],
+  },
+});
+
 const UserSchema = new Schema(
   {
     name: {
@@ -12,7 +19,9 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    location: LocationSchema,
     cover: String,
+
     email: {
       type: Schema.Types.String,
       unique: true,
@@ -52,7 +61,7 @@ const UserSchema = new Schema(
     timestamps: true,
   }
 );
-
+UserSchema.index({ "location.coordinates": "2dsphere" });
 // export const userSchema = `
 //     type User {
 //         id: String

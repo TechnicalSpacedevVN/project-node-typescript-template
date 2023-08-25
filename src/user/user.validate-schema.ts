@@ -53,3 +53,8 @@ export const validateConfirmRegisterByCodeSchema = Joi.object({
   email: Joi.string().email().required(),
   code: Joi.string(),
 });
+
+export const validateLatLngSchema = Joi.object({
+  lat: Joi.number().required(),
+  lng: Joi.number().required(),
+});

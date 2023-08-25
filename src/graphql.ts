@@ -46,8 +46,19 @@ import { JWTPayload } from "./auth/auth.service";
 
 // }
 
+// location: {
+//   type: { type: String, default: "Point" },
+//   coordinates: [Number],
+// },
+const LocationType = `
+  type Location {
+    coordinates: [Float]
+    type: String
+  }
+`;
+
 @GraphQLServer({
-  defs: [UserSchema, FriendSchema, PostSchema],
+  defs: [UserSchema, FriendSchema, PostSchema, LocationType],
   scalars: [dateScalar],
   url: "/graphql",
   playground: "/graphql-devtool",

@@ -7,6 +7,7 @@ import {
   validateChangePasswordSchema,
   validateConfirmRegisterByCodeSchema,
   validateForgotPasswordSchema,
+  validateLatLngSchema,
   validateRegisterSchema,
   validateResetPasswordByCodeSchema,
   validateUpdateUserSchema,
@@ -20,6 +21,7 @@ import {
   ChangePasswordInput,
   ForgotPasswordInput,
   RegisterInput,
+  UpdateLatLngInput,
   UpdateUserInfoInput,
   VerifyRegisterInput,
 } from "./type";
@@ -89,5 +91,14 @@ export class UserController {
   @Middlewares(jwtMiddleware)
   async getUser(req: AuthRequest) {
     return HttpResponse.success(await User.findOne({ _id: req.user }));
+  }
+
+  @Post("/update-location")
+  @Middlewares(jwtMiddleware)
+  @Validate(validateLatLngSchema)
+  async updateLatLng(req: AuthRequest<UpdateLatLngInput>) {
+    return HttpResponse.updated(
+      await this.userService.updateLatLng(req.user, req.body)
+    );
   }
 }

@@ -70,15 +70,19 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
         }
 
         for (let schema of options.defs) {
-          let s = new schema();
-          _types += s.getType();
-          _resolvers = {
-            ..._resolvers,
-            ...s.getResolver(),
-          };
-          _queries += s.getQuery();
+          if (typeof schema === "string") {
+            _types += schema;
+          } else {
+            let s = new schema();
+            _types += s.getType();
+            _resolvers = {
+              ..._resolvers,
+              ...s.getResolver(),
+            };
+            _queries += s.getQuery();
 
-          _fields[s.getName()] = s.getField();
+            _fields[s.getName()] = s.getField();
+          }
         }
 
         // 'user(name: String): User'

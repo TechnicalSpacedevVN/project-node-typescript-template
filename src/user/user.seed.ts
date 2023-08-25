@@ -31,9 +31,13 @@ import _ from "lodash";
   let users = await User.find();
   await Promise.all(
     users.map(async (e) => {
-      e.nickname = faker.internet.displayName();
-      e.hideFriendList = false;
-      e.cover = faker.image.url({ height: 700, width: 1900 });
+      // e.nickname = faker.internet.displayName();
+      // e.hideFriendList = false;
+      // e.cover = faker.image.url({ height: 700, width: 1900 });
+      e.location = {
+        type: "Point",
+        coordinates: [faker.location.longitude(), faker.location.latitude()],
+      } as any;
       await e.save();
       return;
     })

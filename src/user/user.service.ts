@@ -11,6 +11,7 @@ import {
   ChangePasswordInput,
   ForgotPasswordInput,
   RegisterInput,
+  UpdateLatLngInput,
   UpdateUserInfoInput,
   VerifyRegisterInput,
 } from "./type";
@@ -205,5 +206,19 @@ export class UserService {
     }
 
     throw "Thao tác lỗi";
+  }
+
+  async updateLatLng(userId: string, input: UpdateLatLngInput) {
+    return await User.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          location: {
+            type: "Point",
+            coordinates: [input.lng, input.lat],
+          },
+        },
+      }
+    );
   }
 }

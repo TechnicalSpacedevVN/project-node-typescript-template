@@ -30,3 +30,8 @@ export interface ChangePasswordByCodeInput {
   code: string;
   newPassword: string;
 }
+
+export interface UpdateLatLngInput {
+  lat: number;
+  lng: number;
+}
