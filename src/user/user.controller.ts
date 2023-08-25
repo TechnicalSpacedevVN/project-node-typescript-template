@@ -5,6 +5,7 @@ import { UserService } from "./user.service";
 import {
   validatVerifyRegisterSchema,
   validateChangePasswordSchema,
+  validateConfirmRegisterByCodeSchema,
   validateForgotPasswordSchema,
   validateRegisterSchema,
   validateResetPasswordByCodeSchema,
@@ -31,8 +32,15 @@ export class UserController {
   @Post("/register")
   @Validate(validateRegisterSchema)
   async register(req: Request<RegisterInput>) {
-    let user = await this.userService.register(req.body);
+    let user = await this.userService.registerSendCodeEmail(req.body);
     return HttpResponse.success(user);
+  }
+
+  @Post("/verify-register")
+  @Validate(validatVerifyRegisterSchema)
+  async verifyRegisterByCode(req: Request<any, VerifyRegisterInput>) {
+    await this.userService.verifyRegister(req.body);
+    return HttpResponse.success(true);
   }
 
   @Get("/verify-register")

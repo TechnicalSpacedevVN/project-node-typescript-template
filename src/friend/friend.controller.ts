@@ -12,6 +12,7 @@ import {
 } from "./friend.valdiate-schema";
 import { AuthRequest } from "@/common/@type";
 import { AddFriendInput } from "./type";
+import { Friend } from "./friend.model";
 
 @Controller("/friend")
 @UseGuard()
@@ -46,6 +47,30 @@ export class FriendController {
     );
   }
 
+  @Post("/cancel-friend-request/:id")
+  async cancelFriendRequest(req: AuthRequest<any, any, { id: string }>) {
+    console.log({
+      $or: [
+        { sender: req.user, receiver: req.params.id },
+        {
+          sender: req.params.id,
+          receiver: req.user,
+        },
+      ],
+    });
+    return HttpResponse.deleted(
+      await Friend.deleteOne({
+        $or: [
+          { sender: req.user, receiver: req.params.id },
+          {
+            sender: req.params.id,
+            receiver: req.user,
+          },
+        ],
+      })
+    );
+  }
+
   @Get("/my-friend")
   async getMyFriend(req: AuthRequest) {
     return HttpResponse.success(await this.friendService.getFriend(req.user));
@@ -54,7 +79,7 @@ export class FriendController {
   @Post("/confirm/:id")
   async confirm(req: AuthRequest<any, any, { id: string }>) {
     return HttpResponse.success(
-      await this.friendService.confirm(req.params.id, req.user)
+      await this.friendService.confirm(req.user, req.params.id)
     );
   }
 }

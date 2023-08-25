@@ -27,6 +27,12 @@ export class HttpResponse {
     };
   }
 
+  static deleted(data: any) {
+    return {
+      code: 204,
+    };
+  }
+
   static updated(data: any) {
     if (data.modifiedCount) {
       return {
@@ -36,7 +42,7 @@ export class HttpResponse {
       };
     }
 
-    throw "Cập nhật dữ liệu thất bại"
+    throw "Cập nhật dữ liệu thất bại";
   }
 
   static count(count: number) {

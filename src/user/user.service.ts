@@ -16,6 +16,7 @@ import {
 } from "./type";
 import { hashPassword } from "./utils";
 import moment from "moment";
+import { random6Code } from "./user.utils";
 
 const emailRegisterHtml = fs
   .readFileSync(path.resolve("./src/user/views/email-register.html"))
@@ -23,6 +24,9 @@ const emailRegisterHtml = fs
 
 const forfotPasswordHtml = fs
   .readFileSync(path.resolve("./src/user/views/email-reset-password.html"))
+  .toString();
+const emailRegisterCodeHtml = fs
+  .readFileSync(path.resolve("./src/user/views/email-register-6-code.html"))
   .toString();
 
 // 18/01/2023 - 18/08/2023
@@ -62,6 +66,32 @@ export class UserService {
     return user;
   }
 
+  public async registerSendCodeEmail(userData: RegisterInput) {
+    let check = await User.findOne({ email: userData.email });
+    if (check) {
+      throw "Email này đã tồn tại";
+    }
+
+    let { password, email } = userData;
+    password = hashPassword(password);
+    let code = random6Code();
+
+    let user = await User.create({ ...userData, password, code });
+    // user.password = undefined;
+
+    await sendMail({
+      from: '"Spacedev.vn 👻" <study@spacedev.vn>', // sender address
+      to: email, // list of receivers
+      subject: "Code kích hoạt tài khoản spacedev.vn", // Subject line
+      html: emailRegisterCodeHtml, // html body
+      data: {
+        code,
+      },
+    });
+
+    return user;
+  }
+
   public async verifyRegister(input: VerifyRegisterInput) {
     let { code, email } = input;
     let user = await User.findOne({
@@ -94,26 +124,27 @@ export class UserService {
 
     if (user) {
       if (Array.isArray(user.changePasswordHistories)) {
-        let histories = user.changePasswordHistories.filter(e => moment().unix() - moment(e.changeAt).add(6, 'month').unix() < 0)
-        if(histories.find(e => e.password === newPassword)) {
-          throw "Vui lòng thay đổi password khác những password cũ trong khoảng 6 tháng gần nhât"
+        let histories = user.changePasswordHistories.filter(
+          (e) => moment().unix() - moment(e.changeAt).add(6, "month").unix() < 0
+        );
+        if (histories.find((e) => e.password === newPassword)) {
+          throw "Vui lòng thay đổi password khác những password cũ trong khoảng 6 tháng gần nhât";
         }
       }
       user.password = newPassword;
 
-
       await user.updateOne({
         $set: {
-          password: newPassword
+          password: newPassword,
         },
         $push: {
           changePasswordHistories: [
             {
               password: newPassword,
-              changeAt: new Date()
-            }
-          ]
-        }
+              changeAt: new Date(),
+            },
+          ],
+        },
       });
 
       return "Cập nhật tài khoản thành công";

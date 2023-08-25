@@ -17,7 +17,7 @@ export class FriendService {
           },
         ],
       }).select("_id receiver sender");
-      
+
       let userFriendIds = friends.map((e) => {
         if (e.sender?.toString() === userId) {
           return e.receiver;
@@ -136,10 +136,10 @@ export class FriendService {
     return friends;
   }
 
-  public async confirm(id: string, receiverId: string) {
+  public async confirm(myUser: String, senderId: string) {
     let friend = await Friend.findOne({
-      _id: id,
-      receiver: receiverId,
+      sender: senderId,
+      receiver: myUser,
     });
     if (friend) {
       friend.confirm = true;

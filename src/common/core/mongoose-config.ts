@@ -11,7 +11,7 @@ export interface IDatabaseConfig {
   dbName: string;
 }
 
-export const main = async (options: IDatabaseConfig) => {
+export const connectData = async (options: IDatabaseConfig) => {
   mongoose.set("toJSON", {
     transform: (doc, record) => {
       record.id = record._id;
@@ -22,9 +22,9 @@ export const main = async (options: IDatabaseConfig) => {
   await mongoose.connect(options.url, {
     auth: {
       password: options.auth.password,
-      username: options.auth.username
+      username: options.auth.username,
     },
-    dbName: options.dbName
+    dbName: options.dbName,
   });
   console.log("Connected successfully to mongodb (mongoose)");
   // mongoose.sche

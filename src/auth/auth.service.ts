@@ -5,8 +5,6 @@ import jsonwebtoken from "jsonwebtoken";
 import { Token } from "./token.model";
 import { Injectable } from "@core/decorator/DI-IoC";
 
-
-
 export interface LoginInput {
   email: string;
   password: string;
@@ -14,8 +12,6 @@ export interface LoginInput {
 export interface JWTPayload {
   id: string;
 }
-
-
 
 @Injectable()
 export class AuthService {
@@ -25,7 +21,7 @@ export class AuthService {
     password = crypto.createHash("sha256").update(password).digest("hex");
 
     let user = await User.findOne({
-      email,
+      email: email.toLowerCase(),
       password,
       verify: true,
     });
@@ -63,6 +59,6 @@ export class AuthService {
         refreshToken,
       };
     }
-    throw "Thao tác thất bại"
+    throw "Thao tác thất bại";
   }
 }

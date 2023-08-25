@@ -20,14 +20,13 @@ export interface ChangePasswordInput {
   newPassword: string;
 }
 
-
 export interface ForgotPasswordInput {
-  email: string
-  redirect: string
+  email: string;
+  redirect: string;
 }
 
 export interface ChangePasswordByCodeInput {
-  email: string
-  code: string
-  newPassword: string
+  email: string;
+  code: string;
+  newPassword: string;
 }

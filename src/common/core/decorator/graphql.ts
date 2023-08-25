@@ -47,7 +47,7 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
       constructor() {
         super();
 
-        let _types = "#graphql";
+        let _types = "#graphql\n";
         let _resolvers = {};
         let _queries = "";
         let _fields: any = {};
@@ -58,6 +58,17 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
         //     // receiver: () => {}
         //   }
         // }
+
+        if (Array.isArray(options.scalars)) {
+          options.scalars.forEach((e) => {
+            _types += `scalar ${e.name}\n`;
+            _fields = {
+              ..._fields,
+              [e.name]: e,
+            };
+          });
+        }
+
         for (let schema of options.defs) {
           let s = new schema();
           _types += s.getType();
@@ -69,11 +80,13 @@ export const GraphQLServer = (options: GraphQLServerOptions): any => {
 
           _fields[s.getName()] = s.getField();
         }
+
         // 'user(name: String): User'
 
         // console.log(_queries);
         this.server = new ApolloServer({
           typeDefs: `
+
             ${_types}
 
             type Query {

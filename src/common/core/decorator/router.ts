@@ -36,7 +36,7 @@ export const Controller = (prefix = "") => {
               try {
                 let result = await r.handler.apply(this, [req, res, next]);
                 if (typeof result === "object") {
-                  res.json(result);
+                  res.status(result.code || 200).json(result);
                 }
               } catch (err) {
                 next(err);

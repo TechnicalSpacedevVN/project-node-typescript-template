@@ -4,7 +4,10 @@ import express, { Express } from "express";
 import helmet from "helmet";
 import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
-import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
+import {
+  IDatabaseConfig,
+  connectData as connectDatabase,
+} from "../mongoose-config";
 import { BaseMiddleware } from "..";
 import { container } from "./DI-IoC";
 import { APP_KEY } from "./key";

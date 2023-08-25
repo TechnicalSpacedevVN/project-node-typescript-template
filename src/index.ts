@@ -9,15 +9,21 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { AuthController } from "./auth/auth.controller";
 import { JwtMiddleware } from "@/common/config/jwt.middlware";
 import { GraphQLApp } from "./graphql";
+import { PostController } from "./post/post.controller";
 
 config();
 let port = process.env.PORT;
 
 @AppDecorator({
-  controllers: [UserController, FriendController, AuthController],
+  controllers: [
+    UserController,
+    FriendController,
+    AuthController,
+    PostController,
+  ],
   database: databaseConfig,
   guard: JwtMiddleware,
-  modules: [GraphQLApp]
+  modules: [GraphQLApp],
 })
 class App extends BaseApp {}
 

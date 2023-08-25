@@ -7,6 +7,12 @@ const UserSchema = new Schema(
       required: true,
       index: "text",
     },
+    nickname: String,
+    hideFriendList: {
+      type: Boolean,
+      default: false,
+    },
+    cover: String,
     email: {
       type: Schema.Types.String,
       unique: true,

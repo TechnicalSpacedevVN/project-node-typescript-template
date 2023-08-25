@@ -48,3 +48,8 @@ export const validateResetPasswordByCodeSchema = Joi.object({
   code: Joi.string().required(),
   newPassword: Joi.required().custom(validatePassowrd),
 });
+
+export const validateConfirmRegisterByCodeSchema = Joi.object({
+  email: Joi.string().email().required(),
+  code: Joi.string(),
+});
