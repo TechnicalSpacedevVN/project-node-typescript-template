@@ -18,6 +18,7 @@ import {
 import { hashPassword } from "./utils";
 import moment from "moment";
 import { random6Code } from "./user.utils";
+import mongoose from "mongoose";
 
 const emailRegisterHtml = fs
   .readFileSync(path.resolve("./src/user/views/email-register.html"))
@@ -217,6 +218,56 @@ export class UserService {
             type: "Point",
             coordinates: [input.lng, input.lat],
           },
+        },
+      }
+    );
+  }
+
+  async block(userId: string, blockUser: string) {
+    return await User.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $push: {
+          block: [new mongoose.mongo.ObjectId(blockUser)],
+        },
+      }
+    );
+  }
+  async unblock(userId: string, unblockUser: string) {
+    return await User.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $pullAll: {
+          block: [new mongoose.mongo.ObjectId(unblockUser)],
+        },
+      }
+    );
+  }
+
+  async follow(userId: string, followingUserId: string) {
+    return await User.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $push: {
+          follow: [new mongoose.mongo.ObjectId(followingUserId)],
+        },
+      }
+    );
+  }
+  async unfollow(userId: string, followingUserId: string) {
+    return await User.updateOne(
+      {
+        _id: userId,
+      },
+      {
+        $pullAll: {
+          follow: [new mongoose.mongo.ObjectId(followingUserId)],
         },
       }
     );

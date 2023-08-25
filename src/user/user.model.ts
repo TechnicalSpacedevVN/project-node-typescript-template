@@ -49,6 +49,18 @@ const UserSchema = new Schema(
       default: null,
       required: false,
     },
+    block: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    follow: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     changePasswordHistories: [
       {
         password: String,

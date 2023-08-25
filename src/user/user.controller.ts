@@ -1,4 +1,11 @@
-import { Controller, Get, Patch, Post, Validate } from "@core/decorator/router";
+import {
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  Validate,
+} from "@core/decorator/router";
 import { HttpResponse } from "@/common/utils/HttpResponse";
 
 import { UserService } from "./user.service";
@@ -99,6 +106,38 @@ export class UserController {
   async updateLatLng(req: AuthRequest<UpdateLatLngInput>) {
     return HttpResponse.updated(
       await this.userService.updateLatLng(req.user, req.body)
+    );
+  }
+
+  @Post("/block/:id")
+  @Middlewares(jwtMiddleware)
+  async blockUser(req: AuthRequest<any, any, { id: string }>) {
+    return HttpResponse.success(
+      await this.userService.block(req.user, req.params.id)
+    );
+  }
+
+  @Post("/unblock/:id")
+  @Middlewares(jwtMiddleware)
+  async unblock(req: AuthRequest<any, any, { id: string }>) {
+    return HttpResponse.success(
+      await this.userService.unblock(req.user, req.params.id)
+    );
+  }
+
+  @Post("/follow/:id")
+  @Middlewares(jwtMiddleware)
+  async follow(req: AuthRequest<any, any, { id: string }>) {
+    return HttpResponse.success(
+      await this.userService.follow(req.user, req.params.id)
+    );
+  }
+
+  @Post("/unfollow/:id")
+  @Middlewares(jwtMiddleware)
+  async unfollow(req: AuthRequest<any, any, { id: string }>) {
+    return HttpResponse.success(
+      await this.userService.unfollow(req.user, req.params.id)
     );
   }
 }
