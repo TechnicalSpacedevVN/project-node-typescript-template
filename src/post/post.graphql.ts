@@ -1,10 +1,12 @@
 import { Auth, Field, GraphQL, Param, Resolve } from "@/common/core/decorator";
-import { Post } from "./post.model";
+import { Post } from "./models/post.model";
 import { Inject } from "@/common/core/decorator/DI-IoC";
 import { PostService } from "./post.service";
 import { Document, Model } from "mongoose";
 import { User } from "@/user/user.model";
 import { AuthContext } from "@/common/@types/type";
+import { Report } from "@/report/report.model";
+import { HidePost } from "./models/hide-post.model";
 
 @GraphQL(
   `Post`,
@@ -39,7 +41,20 @@ export class PostSchema {
     let user = await User.findOne({ _id: context.user }).select("block follow");
     const blockUser = user?.block || [];
 
+    let postReportIds = (
+      await Report.find({
+        createdBy: context.user,
+        type: "Post",
+      }).select("refId")
+    ).map((e) => e.refId);
+
     const follow = user?.follow || [];
+
+    let hidePostIds = (
+      await HidePost.find({
+        createdBy: context.user,
+      }).select("postId")
+    ).map((e) => e.postId);
 
     // return await Post.find({
     //   author: {
@@ -62,6 +77,9 @@ export class PostSchema {
             author: {
               $nin: blockUser,
             },
+            _id: {
+              $nin: [...postReportIds, ...hidePostIds],
+            },
           },
         },
         {
@@ -70,7 +88,7 @@ export class PostSchema {
             createdAt: -1,
           },
         },
-      ]).limit(10);
+      ]).limit(20);
       return res;
     } catch (err) {
       console.log(err);

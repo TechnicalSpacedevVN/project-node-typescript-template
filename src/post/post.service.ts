@@ -1,5 +1,5 @@
 import { Injectable } from "@/common/core/decorator/DI-IoC";
-import { Post } from "./post.model";
+import { Post } from "./models/post.model";
 
 @Injectable()
 export class PostService {

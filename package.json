@@ -21,6 +21,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/lodash": "^4.14.197",
     "@types/mongoose": "^5.11.97",
+    "@types/multer": "^1.4.7",
     "@types/node": "^20.4.9",
     "nodemon": "^3.0.1",
     "rimraf": "^5.0.1",
@@ -43,6 +44,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "mongoose": "^7.4.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.4",
     "reflect-metadata": "^0.1.13"
   }

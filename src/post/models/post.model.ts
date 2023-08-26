@@ -8,6 +8,7 @@ const postSchema = new Schema(
     },
     image: {
       type: String,
+      require: true,
     },
     author: {
       type: Schema.Types.ObjectId,

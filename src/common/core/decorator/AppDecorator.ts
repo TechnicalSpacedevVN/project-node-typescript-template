@@ -57,10 +57,15 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
         this.app.set("views", path.resolve("./src/views"));
 
         this.app.use(express.json());
-        this.app.use(cors());
+        this.app.use(
+          cors({
+            // origin: ["*"],
+          })
+        );
 
         this.app.use(
           helmet({
+            crossOriginResourcePolicy: false,
             contentSecurityPolicy: {
               directives: {
                 "script-src": ["self"],

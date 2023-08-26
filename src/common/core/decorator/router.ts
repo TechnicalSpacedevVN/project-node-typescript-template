@@ -94,7 +94,7 @@ export const Get = factoryMethod("get");
 export const Post = factoryMethod("post");
 export const Put = factoryMethod("put");
 export const Patch = factoryMethod("patch");
-export const Delete = factoryMethod("Delete");
+export const Delete = factoryMethod("delete");
 export const All = factoryMethod("all");
 
 export const Validate = (schema: Schema) => {
