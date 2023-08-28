@@ -14,6 +14,11 @@ const CommentSchema = new Schema(
     },
     refId: {
       type: Schema.Types.ObjectId,
+      required: true,
+    },
+    replyId: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
     },
   },
   {

@@ -7,6 +7,8 @@ import { User } from "@/user/user.model";
 import { AuthContext } from "@/common/@types/type";
 import { Report } from "@/report/report.model";
 import { HidePost } from "./models/hide-post.model";
+import { Comment } from "@/comment/comment.model";
+import { HideContent } from "@/hide-content/hide-content.model";
 
 @GraphQL(
   `Post`,
@@ -17,6 +19,7 @@ import { HidePost } from "./models/hide-post.model";
   author: User
   createdAt: Date
   updatedAt: Date
+  countComment: Int
 `
 )
 export class PostSchema {
@@ -25,6 +28,29 @@ export class PostSchema {
   @Field("author")
   async author(parent: any) {
     return User.findOne({ _id: parent.author });
+  }
+
+  @Field("countComment")
+  @Auth
+  async countComment(post: any, _: any, context: AuthContext) {
+    let hideCommentIds = (
+      await HideContent.find({
+        createdBy: context.user,
+        type: "Comment",
+      }).select("refId")
+    ).map((e) => e.refId);
+
+    let commentReportIds = (
+      await Report.find({
+        createdBy: context.user,
+        type: "Comment",
+      }).select("refId")
+    ).map((e) => e.refId);
+
+    return await Comment.count({
+      refId: post._id,
+      _id: { $nin: [...hideCommentIds, ...commentReportIds] },
+    });
   }
 
   @Resolve("posts(q: String, user: String): [Post]")
@@ -51,10 +77,11 @@ export class PostSchema {
     const follow = user?.follow || [];
 
     let hidePostIds = (
-      await HidePost.find({
+      await HideContent.find({
         createdBy: context.user,
-      }).select("postId")
-    ).map((e) => e.postId);
+        type: "Post",
+      }).select("refId")
+    ).map((e) => e.refId);
 
     // return await Post.find({
     //   author: {

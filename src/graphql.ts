@@ -11,6 +11,7 @@ import jsonwebtoken from "jsonwebtoken";
 import { GraphQLError } from "graphql";
 import { JWT } from "./common/config";
 import { JWTPayload } from "./auth/auth.service";
+import { CommentSchema } from "./comment/comment.graphql";
 // const typeDefs = `#graphql
 //     scalar Date
 //     type Post {
@@ -58,7 +59,7 @@ const LocationType = `
 `;
 
 @GraphQLServer({
-  defs: [UserSchema, FriendSchema, PostSchema, LocationType],
+  defs: [UserSchema, FriendSchema, PostSchema, LocationType, CommentSchema],
   scalars: [dateScalar],
   url: "/graphql",
   playground: "/graphql-devtool",

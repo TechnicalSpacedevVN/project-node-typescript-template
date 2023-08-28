@@ -1,16 +1,13 @@
 import { Schema, model } from "mongoose";
 
-const ReportSchema = new Schema(
+const HideContentSchema = new Schema(
   {
-    content: {
-      type: String,
-    },
     refId: {
       type: Schema.Types.ObjectId,
     },
     type: {
       type: String,
-      enum: ["Post", "User", "Comment"],
+      enum: ["Post", "Comment"],
     },
     createdBy: {
       type: Schema.Types.ObjectId,
@@ -19,7 +16,8 @@ const ReportSchema = new Schema(
   },
   {
     timestamps: true,
+    collection: "hide_content",
   }
 );
 
-export const Report = model("Report", ReportSchema);
+export const HideContent = model("Hide Content", HideContentSchema);

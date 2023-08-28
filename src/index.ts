@@ -11,6 +11,8 @@ import { GraphQLApp } from "./graphql";
 import { PostController } from "./post/post.controller";
 import express from "express";
 import { ReportController } from "./report/report.controller";
+import { CommentController } from "./comment/comment.controller";
+import { HideContentController } from "./hide-content/hide-content.controller";
 
 config();
 let port = process.env.PORT;
@@ -23,6 +25,8 @@ let port = process.env.PORT;
     PostController,
     FileController,
     ReportController,
+    CommentController,
+    HideContentController,
   ],
   database: databaseConfig,
   guard: JwtMiddleware,

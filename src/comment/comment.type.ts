@@ -3,6 +3,7 @@ export interface CreateCommentInput {
   refId: string;
   content?: string;
   image?: string;
+  replyId?: string;
 }
 
 export type EditCommentInput = Pick<CreateCommentInput, "content">;
