@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      src="https://cdn.socket.io/4.6.0/socket.io.min.js"
+      integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <button id="sendFromClient1">send to other client</button>
+    <button id="sendRoom">send to room</button>
+    <div id="messages"></div>
+    <script>
+      const socket = io("http://localhost:3003");
+      let messages = document.getElementById("messages");
+      socket.on("connect", () => {
+        console.log("socket id", socket.id);
+
+        // setInterval(() => {
+        //   let data = { dataFromClient: Math.random() };
+        //   console.log("client send data", data);
+        //   socket.emit("event on server", data);
+        // }, 3000);
+      });
+
+      if (window.location.search === "?client=3") {
+        document.getElementById("sendRoom").addEventListener("click", () => {
+          const data = "Message from client 3";
+          socket.emit("sendToRoom", data);
+        });
+      } else {
+        socket.emit("join room");
+      }
+
+      socket.on("client message", (msg) => {
+        const newMessage = document.createElement("p");
+        newMessage.innerText = msg;
+        messages.appendChild(newMessage);
+      });
+
+      document
+        .getElementById("sendFromClient1")
+        .addEventListener("click", () => {
+          const data = "Message from another client";
+          socket.emit("message", data);
+        });
+    </script>
+  </body>
+</html>
