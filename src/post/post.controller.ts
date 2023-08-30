@@ -11,7 +11,7 @@ import {
   validateCreatePostSchema,
   validateUpdatePostSchema,
 } from "./post.validate-schema";
-import { AuthRequest } from "@/common/@type";
+import { AuthRequest } from "@/common/@types";
 import { CreatePostInput, UpdatePostInput } from "./post.type";
 import { HttpResponse } from "@/common/utils/HttpResponse";
 import { HidePost } from "./models/hide-post.model";

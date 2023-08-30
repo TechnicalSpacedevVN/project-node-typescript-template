@@ -22,7 +22,7 @@ import {
 import { JwtMiddleware, jwtMiddleware } from "@/common/config/jwt.middlware";
 import { Middlewares, UseGuard } from "@core/decorator";
 import { Inject } from "@core/decorator/DI-IoC";
-import { AuthRequest, Request } from "@/common/@type/user";
+import { AuthRequest, Request } from "@/common/@types/user";
 import {
   ChangePasswordByCodeInput,
   ChangePasswordInput,

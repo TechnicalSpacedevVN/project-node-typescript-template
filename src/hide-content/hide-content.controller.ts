@@ -1,7 +1,7 @@
 import { Controller, Post, UseGuard, Validate } from "@/common/core/decorator";
 import { HttpResponse } from "@/common/utils/HttpResponse";
 import { validateCreateHideContentSchema } from "./hide-content.validate-schem";
-import { AuthRequest } from "@/common/@type";
+import { AuthRequest } from "@/common/@types";
 import { HideContent } from "./hide-content.model";
 
 @Controller("/hide-content")

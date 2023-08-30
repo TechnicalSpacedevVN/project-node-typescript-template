@@ -13,6 +13,7 @@ import express from "express";
 import { ReportController } from "./report/report.controller";
 import { CommentController } from "./comment/comment.controller";
 import { HideContentController } from "./hide-content/hide-content.controller";
+import { SocketApp } from "./socket";
 
 config();
 let port = process.env.PORT;
@@ -30,7 +31,7 @@ let port = process.env.PORT;
   ],
   database: databaseConfig,
   guard: JwtMiddleware,
-  modules: [GraphQLApp],
+  modules: [GraphQLApp, SocketApp],
 })
 class App extends BaseApp {}
 

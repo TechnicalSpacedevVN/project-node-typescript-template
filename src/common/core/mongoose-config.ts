@@ -12,12 +12,12 @@ export interface IDatabaseConfig {
 }
 
 export const connectData = async (options: IDatabaseConfig) => {
-  mongoose.set("toJSON", {
-    transform: (doc, record) => {
-      record.id = record._id;
-      delete record._id;
-    },
-  });
+  // mongoose.set("toJSON", {
+  //   transform: (doc, record) => {
+  //     record.id = record._id;
+  //     delete record._id;
+  //   },
+  // });
 
   await mongoose.connect(options.url, {
     auth: {
