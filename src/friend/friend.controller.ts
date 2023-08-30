@@ -10,7 +10,7 @@ import {
   validateAddFriendSchema,
   validateSearchFriendSchema,
 } from "./friend.valdiate-schema";
-import { AuthRequest } from "@/common/@type";
+import { AuthRequest } from "@/common/@types";
 import { AddFriendInput } from "./type";
 import { Friend } from "./friend.model";
 

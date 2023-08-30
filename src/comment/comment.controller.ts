@@ -10,7 +10,7 @@ import { Inject } from "@/common/core/decorator/DI-IoC";
 import { CommentService } from "./comment.service";
 import { validateCreateCommentSchema } from "./comment.validate-schema";
 import { BodyCreateComment, EditCommentInput } from "./comment.type";
-import { AuthRequest } from "@/common/@type";
+import { AuthRequest } from "@/common/@types";
 import { HttpResponse } from "@/common/utils/HttpResponse";
 import { Comment } from "./comment.model";
 

@@ -6,7 +6,7 @@ import {
   Validate,
 } from "@/common/core/decorator";
 import { validateCreateReportSchema } from "./report.valdiate-schema";
-import { AuthRequest } from "@/common/@type";
+import { AuthRequest } from "@/common/@types";
 import { Inject } from "@/common/core/decorator/DI-IoC";
 import { ReportService } from "./report.service";
 import { HttpResponse } from "@/common/utils/HttpResponse";

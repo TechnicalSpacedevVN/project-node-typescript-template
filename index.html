@@ -13,9 +13,10 @@
   <body>
     <button id="sendFromClient1">send to other client</button>
     <button id="sendRoom">send to room</button>
+    <button id="joinRoom">join room</button>
     <div id="messages"></div>
     <script>
-      const socket = io("http://localhost:3003");
+      const socket = io("http://localhost:8000");
       let messages = document.getElementById("messages");
       socket.on("connect", () => {
         console.log("socket id", socket.id);
@@ -33,10 +34,11 @@
           socket.emit("sendToRoom", data);
         });
       } else {
-        socket.emit("join room");
+        socket.emit("join room", "room1", 213, true, {});
       }
 
       socket.on("client message", (msg) => {
+        console.log("client message");
         const newMessage = document.createElement("p");
         newMessage.innerText = msg;
         messages.appendChild(newMessage);
@@ -48,6 +50,11 @@
           const data = "Message from another client";
           socket.emit("message", data);
         });
+      document.getElementById("joinRoom").addEventListener("click", () => {
+        socket.emit("join-room", "asdfasdf", true, 112312, {
+          "join-room": true,
+        });
+      });
     </script>
   </body>
 </html>

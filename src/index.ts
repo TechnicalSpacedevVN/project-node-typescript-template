@@ -11,6 +11,7 @@ import { GraphQLApp } from "./graphql";
 import { PostController } from "./post/post.controller";
 import express from "express";
 import { ReportController } from "./report/report.controller";
+import { SocketApp } from "./socket";
 
 config();
 let port = process.env.PORT;
@@ -26,7 +27,7 @@ let port = process.env.PORT;
   ],
   database: databaseConfig,
   guard: JwtMiddleware,
-  modules: [GraphQLApp],
+  modules: [GraphQLApp, SocketApp],
 })
 class App extends BaseApp {}
 
