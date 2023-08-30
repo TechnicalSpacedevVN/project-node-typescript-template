@@ -15,7 +15,7 @@
     <button id="sendRoom">send to room</button>
     <div id="messages"></div>
     <script>
-      const socket = io("http://localhost:3003");
+      const socket = io("http://localhost:8000", { withCredentials: true });
       let messages = document.getElementById("messages");
       socket.on("connect", () => {
         console.log("socket id", socket.id);
@@ -33,7 +33,7 @@
           socket.emit("sendToRoom", data);
         });
       } else {
-        socket.emit("join room");
+        socket.emit("join room", "room1");
       }
 
       socket.on("client message", (msg) => {

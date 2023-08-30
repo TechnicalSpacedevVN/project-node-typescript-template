@@ -2,6 +2,7 @@ import cors from "cors";
 import { config } from "dotenv";
 import express, { Express } from "express";
 import helmet from "helmet";
+import { createServer } from "http";
 import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
 import {
@@ -21,6 +22,7 @@ interface AppDecoratorOptions {
 
 export interface AppData {
   app: Express;
+  httpServer: ReturnType<typeof createServer>;
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
@@ -29,9 +31,11 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
   return (target: any) => {
     return class extends target {
       app: Express;
+      httpServer: ReturnType<typeof createServer>;
       constructor() {
         super();
         this.app = express();
+        this.httpServer = createServer(this.app);
 
         if (options?.database) {
           connectDatabase(options.database);
@@ -100,7 +104,10 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
 
         this.app.use(errorMiddleware);
 
-        container.register(APP_KEY, { app: this.app });
+        container.register(APP_KEY, {
+          app: this.app,
+          httpServer: this.httpServer,
+        });
         // this.app.all("*", (req, res) => {
         //   res.status(404).json({ error: "Not Found" });
         // });
@@ -115,7 +122,7 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
           }
         }
 
-        this.app.listen(port, cb);
+        this.httpServer.listen(port, cb);
       }
 
       use(...args: any[]): void {

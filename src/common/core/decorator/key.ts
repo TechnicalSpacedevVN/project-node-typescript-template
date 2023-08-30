@@ -7,6 +7,10 @@ export const GUARD_KEY = "metadata:guard";
 export const MIDDLEWARE_KEY = "metadata:middelware";
 
 export const APP_KEY = "app-data";
+export const SOCKET_KEY = "socket-data";
+export const SOCKET_USERS = "socket-users";
+export const SOCKET_IO = "socket.io";
+export const SOCKET_EVENTS = "socket.events";
 
 export const GRAPHQL_RESOLVE_KEY = "metadata:graphqwl-resolve";
 export const GRAPHQL_FIELD_KEY = "metadata:graphqwl-field";

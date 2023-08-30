@@ -32,6 +32,7 @@
   "dependencies": {
     "@apollo/server": "^4.9.1",
     "@faker-js/faker": "^8.0.2",
+    "@socket.io/admin-ui": "^0.5.1",
     "@types/nodemailer": "^6.4.9",
     "chalk": "4.1.2",
     "cors": "^2.8.5",
