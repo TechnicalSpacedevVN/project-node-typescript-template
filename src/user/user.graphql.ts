@@ -21,6 +21,7 @@ import mongoose, { Schema } from "mongoose";
   allowFollow: Boolean
   block: [User]
   follow: [User]
+  online: Boolean
 `
 )
 export class UserSchema {

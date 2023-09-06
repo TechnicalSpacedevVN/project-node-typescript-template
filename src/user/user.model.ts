@@ -73,6 +73,7 @@ const UserSchema = new Schema(
     ],
     sendMailAt: Date,
     socketId: String,
+    online: Boolean,
   },
   {
     timestamps: true,

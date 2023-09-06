@@ -4,12 +4,12 @@ import { ConversationBody, SendMessageBody } from "./chat.type";
 import { Conversation } from "./models/conversation.model";
 import { User } from "@/user/user.model";
 import { Message } from "./models/message.model";
-import { ClientEvent } from "./config";
+import { ClientEvent, ServerEvent } from "./config";
 
 export class ChatSocket {
   @IoServer() private readonly server!: Server;
 
-  @SubscribeMessage("conversation")
+  @SubscribeMessage(ServerEvent.Conversation)
   async conversation(client: Socket, body: ConversationBody, cb: Function) {
     let [user1, user2] = body.users;
 
@@ -36,7 +36,21 @@ export class ChatSocket {
     cb({ ...conversation?.toJSON(), messages });
   }
 
-  @SubscribeMessage("send-to-user")
+  @SubscribeMessage(ServerEvent.ConversationGroup)
+  async getConversationGroup(client: Socket, cb: Function) {
+    let user = await User.findOne({ socketId: client.id });
+    if (user) {
+      let conversations = await Conversation.find({
+        users: {
+          $in: [user.id],
+        },
+        isGroup: true,
+      });
+      cb(conversations);
+    }
+  }
+
+  @SubscribeMessage(ServerEvent.SendToUser)
   async sendToUser(client: Socket, body: SendMessageBody, cb: Function) {
     // this.server.to();
     // console.log("send-to-user", body);
@@ -62,11 +76,22 @@ export class ChatSocket {
     cb(_message);
   }
 
-  @SubscribeMessage("login")
+  @SubscribeMessage(ServerEvent.Login)
   async login(client: Socket, userId: string) {
     console.log("login", userId);
-    await User.updateOne({ _id: userId }, { socketId: client.id });
+
+    let user = await User.findOne({ _id: userId });
+    if (user) {
+      user.online = true;
+      user.socketId = client.id;
+      await user.save();
+
+      this.server.emit(ClientEvent.UpdateUser, user);
+    }
   }
+
+  @SubscribeMessage(ServerEvent.Online)
+  async changeStatus(client: Socket) {}
 
   @SubscribeMessage("connection")
   connection() {
@@ -74,7 +99,20 @@ export class ChatSocket {
   }
 
   @SubscribeMessage("disconnect")
-  disconnect() {
-    console.log("User disconnect");
+  async disconnect(client: Socket) {
+    // console.log("disconnect", client.id);
+    // await User.updateOne(
+    //   { socketId: client.id },
+    //   { $set: { socketId: null, online: false } }
+    // );
+
+    let user = await User.findOne({ socketId: client.id });
+    if (user) {
+      user.online = false;
+      user.socketId = undefined;
+      await user.save();
+
+      this.server.emit(ClientEvent.UpdateUser, user);
+    }
   }
 }
