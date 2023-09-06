@@ -1,6 +1,10 @@
 import { IoServer, SubscribeMessage } from "@/common/core/decorator";
 import { Server, Socket } from "socket.io";
-import { ConversationBody, SendMessageBody } from "./chat.type";
+import {
+  ConversationBody,
+  SendMessageBody,
+  SendToConversationMessageBody,
+} from "./chat.type";
 import { Conversation } from "./models/conversation.model";
 import { User } from "@/user/user.model";
 import { Message } from "./models/message.model";
@@ -36,6 +40,14 @@ export class ChatSocket {
     cb({ ...conversation?.toJSON(), messages });
   }
 
+  @SubscribeMessage(ServerEvent.GetMessages)
+  async getMessages(client: Socket, conversationId: string, cb: Function) {
+    let messages = await Message.find({
+      conversation: conversationId,
+    }).populate("sender");
+    cb(messages);
+  }
+
   @SubscribeMessage(ServerEvent.ConversationGroup)
   async getConversationGroup(client: Socket, cb: Function) {
     let user = await User.findOne({ socketId: client.id });
@@ -45,9 +57,57 @@ export class ChatSocket {
           $in: [user.id],
         },
         isGroup: true,
-      });
+      }).populate("users");
+
       cb(conversations);
     }
+  }
+
+  @SubscribeMessage(ServerEvent.SendToConversation)
+  async sendToConversation(
+    client: Socket,
+    body: SendToConversationMessageBody,
+    cb: Function
+  ) {
+    // this.server.to();
+    // console.log("send-to-user", body);
+    let sender = await User.findOne({ socketId: client.id });
+    // let socketId = (await User.findOne({ _id: body.userId }).select("socketId"))
+    //   ?.socketId;
+    if (sender) {
+      let message = new Message({
+        content: body.content,
+        sender: sender._id,
+        conversation: body.conversation,
+      });
+      await message.save();
+
+      let _message = await Message.findOne({ _id: message._id }).populate(
+        "sender"
+      );
+
+      let eventName = `${ClientEvent.ReceiverMessage}-${body.conversation}`;
+      this.server.to(body.conversation).emit(eventName, _message);
+      // if (socketId) {
+      //   this.server.to(socketId).emit(ClientEvent.ReceiverMessage, _message);
+      // }
+
+      cb(_message);
+    }
+  }
+
+  @SubscribeMessage(ServerEvent.JoinRoom)
+  async joinRoom(client: Socket, roomId: string, cb?: Function) {
+    console.log("joinRoom", roomId);
+    client.join(roomId);
+    cb?.();
+  }
+
+  @SubscribeMessage(ServerEvent.LeaveRoom)
+  async leaveRoom(client: Socket, roomId: string, cb?: Function) {
+    console.log("leaveRoom", roomId);
+    client.leave(roomId);
+    cb?.();
   }
 
   @SubscribeMessage(ServerEvent.SendToUser)
@@ -77,7 +137,7 @@ export class ChatSocket {
   }
 
   @SubscribeMessage(ServerEvent.Login)
-  async login(client: Socket, userId: string) {
+  async login(client: Socket, userId: string, cb: Function) {
     console.log("login", userId);
 
     let user = await User.findOne({ _id: userId });
@@ -88,6 +148,8 @@ export class ChatSocket {
 
       this.server.emit(ClientEvent.UpdateUser, user);
     }
+
+    cb();
   }
 
   @SubscribeMessage(ServerEvent.Online)

@@ -7,3 +7,8 @@ export interface SendMessageBody {
   content: string;
   conversation: string;
 }
+
+export interface SendToConversationMessageBody {
+  content: string;
+  conversation: string;
+}
