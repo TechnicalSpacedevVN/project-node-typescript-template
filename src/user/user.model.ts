@@ -72,6 +72,7 @@ const UserSchema = new Schema(
       },
     ],
     sendMailAt: Date,
+    socketId: String,
   },
   {
     timestamps: true,

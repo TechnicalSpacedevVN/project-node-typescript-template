@@ -44,7 +44,7 @@ export const SocketServer = (options: SocketServerOptions) => {
         }
 
         io.on("connection", (socket) => {
-          console.log("User connected");
+          // console.log("User connected");
           events?.connection?.forEach((handler) => handler(socket));
           //code here
           for (let i in events) {
@@ -60,7 +60,7 @@ export const SocketServer = (options: SocketServerOptions) => {
 
           socket.on("disconnect", () => {
             events?.disconnect?.forEach((handler) => handler(socket));
-            console.log("User disconnect");
+            // console.log("User disconnect");
           });
         });
 

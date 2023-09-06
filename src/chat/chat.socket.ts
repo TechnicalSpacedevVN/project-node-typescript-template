@@ -1,73 +1,80 @@
 import { IoServer, SubscribeMessage } from "@/common/core/decorator";
 import { Server, Socket } from "socket.io";
-import { CreateMessageInput, SocketAuth } from "./chat.type";
-import { User } from "@/user/user.model";
+import { ConversationBody, SendMessageBody } from "./chat.type";
 import { Conversation } from "./models/conversation.model";
-import { ClientEvent } from "./constant";
+import { User } from "@/user/user.model";
 import { Message } from "./models/message.model";
-
-let socketIds: any = [];
-const room = "room";
+import { ClientEvent } from "./config";
 
 export class ChatSocket {
-  @IoServer() io!: Server;
+  @IoServer() private readonly server!: Server;
 
-  @SubscribeMessage("connection")
-  async connection(client: Socket) {}
+  @SubscribeMessage("conversation")
+  async conversation(client: Socket, body: ConversationBody, cb: Function) {
+    let [user1, user2] = body.users;
 
-  @SubscribeMessage("disconnect")
-  async disconnect(client: Socket) {}
-
-  @SubscribeMessage("login")
-  async login(client: SocketAuth, userId: string) {
-    let user = await User.findOne({ _id: userId });
-    if (user) {
-      client.userId = userId;
-      client.user = user;
-    }
-  }
-
-  @SubscribeMessage("get-conversation")
-  async getConversation(client: SocketAuth, userId: string, cb: any) {
     let conversation = await Conversation.findOne({
       $or: [
-        { users: [client.user._id, userId] },
-        { users: [userId, client.user._id] },
-      ],
-    });
-
-    if (!conversation) {
-      conversation = new Conversation({
-        users: [client.user._id, userId],
-      });
-      await conversation.save();
-    }
-
-    conversation = await Conversation.findOne({
-      $or: [
-        { users: [client.user._id, userId] },
-        { users: [userId, client.user._id] },
+        { users: [user1, user2] },
+        {
+          users: [user2, user1],
+        },
       ],
     }).populate("users");
+    if (!conversation) {
+      conversation = new Conversation({ users: [user1, user2] });
+      await conversation.save();
+      conversation = await Conversation.findOne({
+        _id: conversation._id,
+      }).populate("users");
+    }
 
-    let messages = await Message.find({ conversation: conversation?._id });
+    let messages = await Message.find({
+      conversation: conversation?._id,
+    }).populate("sender");
 
-    cb?.({ ...conversation?.toObject(), messages });
+    cb({ ...conversation?.toJSON(), messages });
   }
 
-  @SubscribeMessage("join-room")
-  joinRoom(client: SocketAuth, room: string) {
-    client.join(room);
-  }
+  @SubscribeMessage("send-to-user")
+  async sendToUser(client: Socket, body: SendMessageBody, cb: Function) {
+    // this.server.to();
+    // console.log("send-to-user", body);
+    let sender = await User.findOne({ socketId: client.id });
+    let socketId = (await User.findOne({ _id: body.userId }).select("socketId"))
+      ?.socketId;
 
-  @SubscribeMessage("send-message-to-room")
-  async sendMessageToRoom(client: SocketAuth, payload: CreateMessageInput) {
     let message = new Message({
-      content: payload.content,
-      sender: client.userId,
-      conversation: payload.conversation,
+      content: body.content,
+      sender: sender?._id,
+      conversation: body.conversation,
     });
     await message.save();
-    this.io.to(payload.conversation).emit(ClientEvent.ClientMessage, message);
+
+    let _message = await Message.findOne({ _id: message._id }).populate(
+      "sender"
+    );
+
+    if (socketId) {
+      this.server.to(socketId).emit(ClientEvent.ReceiverMessage, _message);
+    }
+
+    cb(_message);
+  }
+
+  @SubscribeMessage("login")
+  async login(client: Socket, userId: string) {
+    console.log("login", userId);
+    await User.updateOne({ _id: userId }, { socketId: client.id });
+  }
+
+  @SubscribeMessage("connection")
+  connection() {
+    console.log("User connected");
+  }
+
+  @SubscribeMessage("disconnect")
+  disconnect() {
+    console.log("User disconnect");
   }
 }
